@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper mapper;
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository, ModelMapper mapper) {
         this.userRepository = userRepository;
@@ -74,13 +75,17 @@ public class UserServiceImpl implements UserService {
         userRepository.getUserRepo().values().stream()
                 .filter(user -> user.getEmail().equals(email))
                 .findFirst()
-                .ifPresent(s -> {throw new AlreadyUsedEmail(email);});
+                .ifPresent(s -> {
+                    throw new AlreadyUsedEmail(email);
+                });
     }
 
     private void isEmailUsed(String email, int userId) {
         userRepository.getUserRepo().values().stream()
                 .filter(user -> user.getEmail().equals(email) && user.getId() != userId)
                 .findFirst()
-                .ifPresent(s -> {throw new AlreadyUsedEmail(email);});
+                .ifPresent(s -> {
+                    throw new AlreadyUsedEmail(email);
+                });
     }
 }

@@ -17,6 +17,7 @@ public class ItemServiceImpl implements ItemService {
     private final ModelMapper mapper;
     private final ItemRepository itemRepository;
     private final UserService userService;
+
     @Autowired
     public ItemServiceImpl(ModelMapper mapper, ItemRepository itemRepository, UserService userService) {
         this.mapper = mapper;
@@ -71,6 +72,7 @@ public class ItemServiceImpl implements ItemService {
     private Item convertDtoToItem(ItemDto itemDto) {
         return mapper.map(itemDto, Item.class);
     }
+
     private ItemDto convertItemToDto(Item item) {
         return mapper.map(item, ItemDto.class);
     }

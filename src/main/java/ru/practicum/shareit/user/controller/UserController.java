@@ -25,10 +25,12 @@ public class UserController {
     public UserDto createUser(@Valid @RequestBody UserDto userDto) {
         return userService.createUser(userDto);
     }
+
     @PatchMapping("/{id}")
     public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable int id) {
         return userService.updateUser(userDto, id);
     }
+
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable int id) {
         userService.deleteUser(id);
