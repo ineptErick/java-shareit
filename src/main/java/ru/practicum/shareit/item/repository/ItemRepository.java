@@ -27,7 +27,7 @@ public class ItemRepository {
         return item;
     }
 
-    public void deleteItem(long userId) {
+    public void deleteItem(int userId) {
         itemRepo.remove(userId);
     }
 
@@ -55,7 +55,7 @@ public class ItemRepository {
                 .collect(Collectors.toList());
     }
 
-    public Item getItemById(long itemId) {
+    public Item getItemById(int itemId) {
         return itemRepo.get(itemId);
     }
 
