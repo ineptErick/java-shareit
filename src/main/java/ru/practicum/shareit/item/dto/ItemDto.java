@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -8,15 +10,16 @@ import javax.validation.constraints.NotNull;
 /**
  * TODO Sprint add-controllers.
  */
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 public class ItemDto {
-    private int id;
-    private int owner;
+    int id;
+    int owner;
 
     @NotBlank
-    private String name;
+    String name;
     @NotBlank
-    private String description;
+    String description;
     @NotNull
-    private Boolean available;
+    Boolean available;
 }
