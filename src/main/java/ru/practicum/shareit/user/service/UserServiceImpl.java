@@ -3,10 +3,12 @@ package ru.practicum.shareit.user.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.AlreadyUsedEmail;
+import ru.practicum.shareit.exceptions.EntityNotFound;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,45 +24,58 @@ public class UserServiceImpl implements UserService {
         this.mapper = mapper;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public UserDto getUserDtoById(int id) {
+        return convertUserToDto(getUserById(id));
+    }
+
+    public User getUserById(int userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFound("User not found: " + userId));
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public List<UserDto> getAllUsers() {
-        return userRepository.getAllUsers().stream()
+        return userRepository.findAll().stream()
                 .map(this::convertUserToDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public UserDto createUser(UserDto userDto) {
         User user = convertDtoToUser(userDto);
-        isEmailUsed(user.getEmail());
-        return convertUserToDto(userRepository.createUser(user));
+        return convertUserToDto(userRepository.save(user));
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto, int userId) {
-        if (isUserExist(userId)) {
-            User user = convertDtoToUser(userDto);
-            isEmailUsed(user.getEmail(), userId);
-            return convertUserToDto(userRepository.updateUser(user, userId));
-        } else {
-            throw new RuntimeException();
+    public UserDto updateUser(UserDto userDto, int id) {
+        isUserExist(id);
+        User user = userRepository.findById(id).get();
+        isUsedEmail(user.getEmail(), id);
+
+        if (userDto.getName() != null) {
+            user.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            user.setEmail(userDto.getEmail());
         }
 
+        return convertUserToDto(userRepository.save(user));
     }
 
     @Override
     public void deleteUser(int userId) {
-        userRepository.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
-    public UserDto getUserById(int userUd) {
-        return convertUserToDto(userRepository.getUserById(userUd));
-    }
-
-    @Override
-    public boolean isUserExist(int userId) {
-        return userRepository.getUserRepo().containsKey(userId);
+    public void isUserExist(int userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFound("User not found: " + userId);
+        }
     }
 
     private User convertDtoToUser(UserDto userDto) {
@@ -71,21 +86,9 @@ public class UserServiceImpl implements UserService {
         return mapper.map(user, UserDto.class);
     }
 
-    private void isEmailUsed(String email) {
-        userRepository.getUserRepo().values().stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst()
-                .ifPresent(s -> {
-                    throw new AlreadyUsedEmail(email);
-                });
-    }
-
-    private void isEmailUsed(String email, int userId) {
-        userRepository.getUserRepo().values().stream()
-                .filter(user -> user.getEmail().equals(email) && user.getId() != userId)
-                .findFirst()
-                .ifPresent(s -> {
-                    throw new AlreadyUsedEmail(email);
-                });
+    private void isUsedEmail(String email, int userId) {
+        if (userRepository.findByEmail(email).getId() != userId) {
+            throw new AlreadyUsedEmail(email);
+        }
     }
 }

@@ -1,7 +1,12 @@
 package ru.practicum.shareit.booking.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.ReceivedBookingDto;
+import ru.practicum.shareit.booking.dto.SentBookingDto;
+import ru.practicum.shareit.booking.service.BookingService;
+
+import java.util.List;
 
 /**
  * TODO Sprint add-bookings.
@@ -9,4 +14,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/bookings")
 public class BookingController {
+    private static final String USER_ID = "X-Sharer-User-Id";
+    private final BookingService bookingService;
+
+    @Autowired
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
+
+    @GetMapping("/{bookingId}")
+    public SentBookingDto getBooking(@PathVariable int bookingId,
+                                     @RequestHeader(value = USER_ID) int userId) {
+        return bookingService.getBooking(bookingId, userId);
+    }
+
+    @GetMapping()
+    public List<SentBookingDto> getAllUserBookings(@RequestHeader(value = USER_ID) int userId,
+                                                   @RequestParam(name = "state", required = false, defaultValue = "ALL")
+                                                   String state) {
+        return bookingService.getAllUserBookings(userId, state, "USER");
+    }
+
+    @GetMapping("/owner")
+    public List<SentBookingDto> getAllOwnerBookings(@RequestHeader(value = USER_ID) int userId,
+                                                    @RequestParam(name = "state",
+                                                            required = false, defaultValue = "ALL") String state) {
+        return bookingService.getAllUserBookings(userId, state, "OWNER");
+    }
+
+    @PostMapping()
+    public SentBookingDto createBooking(@RequestBody ReceivedBookingDto bookingDto,
+                                        @RequestHeader(value = USER_ID) int userId) {
+        return bookingService.createBooking(bookingDto, userId);
+    }
+
+    @PatchMapping("/{bookingId}")
+    public SentBookingDto updateBookingStatus(@PathVariable int bookingId,
+                                              @RequestParam(name = "approved") String approved,
+                                              @RequestHeader(value = USER_ID) int userId) {
+        return bookingService.updateBookingStatus(bookingId, approved.toLowerCase(), userId);
+    }
 }

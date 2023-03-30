@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -14,24 +15,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 public class ItemController {
+    private static final String USER_ID = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @Autowired
     public ItemController(ItemService itemService) {
         this.itemService = itemService;
-    }
-
-    @PostMapping()
-    public ItemDto createItem(@RequestHeader(value = "X-Sharer-User-Id") int userId,
-                              @Valid @RequestBody ItemDto itemDto) {
-        return itemService.createItem(itemDto, userId);
-    }
-
-    @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@PathVariable int itemId,
-                              @RequestBody ItemDto itemDto,
-                              @RequestHeader(value = "X-Sharer-User-Id") int userId) {
-        return itemService.updateItem(itemDto, itemId, userId);
     }
 
     @DeleteMapping("/{id}")
@@ -40,12 +29,12 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable int itemId) {
-        return itemService.getItemById(itemId);
+    public ItemDto getItemById(@PathVariable int itemId, @RequestHeader(value = USER_ID) int userId) {
+        return itemService.getItemDtoById(itemId, userId);
     }
 
     @GetMapping()
-    public List<ItemDto> getItems(@RequestHeader(value = "X-Sharer-User-Id") int userId) {
+    public List<ItemDto> getItems(@RequestHeader(value = USER_ID) int userId) {
         return itemService.getItems(userId);
     }
 
@@ -54,4 +43,23 @@ public class ItemController {
         return itemService.searchItemByText(text);
     }
 
+    @PostMapping()
+    public ItemDto createItem(@RequestHeader(value = USER_ID) int userId,
+                              @Valid @RequestBody ItemDto itemDto) {
+        return itemService.createItem(itemDto, userId);
+    }
+
+    @PatchMapping("/{itemId}")
+    public ItemDto updateItem(@PathVariable int itemId,
+                              @RequestBody ItemDto itemDto,
+                              @RequestHeader(value = USER_ID) int userId) {
+        return itemService.updateItem(itemDto, itemId, userId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestBody CommentDto commentDto,
+                                    @PathVariable int itemId,
+                                    @RequestHeader(value = USER_ID) int userId) {
+        return itemService.createComment(commentDto, itemId, userId);
+    }
 }
