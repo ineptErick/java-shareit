@@ -41,8 +41,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public SentBookingDto getBooking(int bookingId, int userId) {
-        Booking booking = bookingRepository.findById(bookingId).
-                orElseThrow(() -> new EntityNotFound("User not found: " + bookingId));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFound("User not found: " + bookingId));
         if (booking.getBooker().getId() == userId || booking.getItem().getOwner() == userId) {
             return convertBookingToDto(booking);
         } else {
@@ -56,9 +55,7 @@ public class BookingServiceImpl implements BookingService {
             throw new UnsupportedStatus("Unknown state");
         }
         userService.isUserExist(userId);
-        List<Booking> userBookings = userType.equals(USER)
-                ? bookingRepository.findAllUserBookingsByState(userId, state)
-                : bookingRepository.findAllOwnerBookingsByState(userId, state);
+        List<Booking> userBookings = userType.equals(USER) ? bookingRepository.findAllUserBookingsByState(userId, state) : bookingRepository.findAllOwnerBookingsByState(userId, state);
         return convertListBookingToDto(userBookings);
     }
 
@@ -75,8 +72,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     public SentBookingDto updateBookingStatus(int bookingId, String approved, int userId) {
-        Booking booking = bookingRepository.findById(bookingId).
-                orElseThrow(() -> new EntityNotFound("Booking not found"));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFound("Booking not found"));
         isValidUpdateBookingStatusRequest(booking, userId, bookingId);
         setBookingStatus(booking, approved);
         return convertBookingToDto(bookingRepository.save(booking));
@@ -128,8 +124,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<SentBookingDto> convertListBookingToDto(List<Booking> bookings) {
-        return bookings.stream()
-                .map(this::convertBookingToDto)
-                .collect(Collectors.toList());
+        return bookings.stream().map(this::convertBookingToDto).collect(Collectors.toList());
     }
 }
