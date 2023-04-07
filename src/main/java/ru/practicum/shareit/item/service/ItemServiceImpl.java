@@ -53,25 +53,18 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(int itemId) {
-        return itemRepository.findById(itemId).
-                orElseThrow(() -> new EntityNotFound("Item not found: " + itemId));
+        return itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFound("Item not found: " + itemId));
     }
 
     @Override
     public List<ItemDto> getItems(int userId) {
-        List<ItemDto> items = itemRepository.findAllByOwner(userId).stream()
-                .peek(Item::getComments)
-                .map(this::convertItemToDto)
-                .sorted(Comparator.comparing(ItemDto::getId))
-                .collect(Collectors.toList());
-
+        List<ItemDto> items = itemRepository.findAllByOwner(userId).stream().peek(Item::getComments).map(this::convertItemToDto).sorted(Comparator.comparing(ItemDto::getId)).collect(Collectors.toList());
         setBookingDate(items);
         return items;
     }
 
     private void setBookingDate(List<ItemDto> items) {
-        List<Integer> itemsId = items.stream()
-                .map(ItemDto::getId).collect(Collectors.toList());
+        List<Integer> itemsId = items.stream().map(ItemDto::getId).collect(Collectors.toList());
 
         List<BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now());
         if (!allNextBooking.isEmpty()) {
@@ -138,9 +131,7 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        return itemRepository.searchItemByText(text).stream()
-                .map(this::convertItemToDto)
-                .collect(Collectors.toList());
+        return itemRepository.searchItemByText(text).stream().map(this::convertItemToDto).collect(Collectors.toList());
     }
 
     private void isCommentValid(CommentDto commentDto, int itemId, int userId) {
