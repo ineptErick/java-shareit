@@ -19,7 +19,7 @@ public class Item {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @Column(name = "name")
     private String name;
 
@@ -30,7 +30,7 @@ public class Item {
     private Boolean available;
 
     @Column(name = "owner_id")
-    private int owner;
+    private Long owner;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private Set<Comment> comments;

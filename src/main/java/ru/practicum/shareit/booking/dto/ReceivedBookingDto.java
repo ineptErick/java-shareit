@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ReceivedBookingDto {
-    private int itemId;
+    private Long itemId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", shape = JsonFormat.Shape.STRING)
     private LocalDateTime start;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", shape = JsonFormat.Shape.STRING)

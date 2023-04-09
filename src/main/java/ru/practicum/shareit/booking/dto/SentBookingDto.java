@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class SentBookingDto {
-    private int id;
+    private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
     private BookingStatus status;

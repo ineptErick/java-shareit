@@ -15,7 +15,7 @@ public class Comment {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @Column(name = "text")
     private String text;
     @Column(name = "author_name")
@@ -26,5 +26,4 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;
-
 }
