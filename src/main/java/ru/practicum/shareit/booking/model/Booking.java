@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Id;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.util.BookingStatus;
@@ -14,9 +13,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Getter
 @Setter
 @ToString(exclude = {"item", "booker"})
@@ -44,6 +40,7 @@ public class Booking {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private BookingStatus status = BookingStatus.WAITING;
+
 
     @Override
     public boolean equals(Object o) {

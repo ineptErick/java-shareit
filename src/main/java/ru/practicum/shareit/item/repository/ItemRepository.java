@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
-    List<Item> findAllByOwner(long ownerId);
+    List<Item> findAllByOwner(int ownerId);
 
     @Query(value = "SELECT * FROM items WHERE name ILIKE CONCAT('%',?1,'%') OR description ILIKE CONCAT('%',?1,'%') AND " +
             "is_available = TRUE", nativeQuery = true)

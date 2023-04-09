@@ -8,9 +8,6 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @RestController
 @RequestMapping(path = "/bookings")
 public class BookingController {
@@ -24,7 +21,8 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public SentBookingDto getBooking(@PathVariable int bookingId,
-                                     @RequestHeader(value = USER_ID) int userId) {
+                                     @RequestHeader(value = USER_ID)
+                                     int userId) {
         return bookingService.getBooking(bookingId, userId);
     }
 

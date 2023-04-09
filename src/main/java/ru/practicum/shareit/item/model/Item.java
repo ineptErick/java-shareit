@@ -1,16 +1,14 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.*;
-import org.springframework.data.annotation.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * TODO Sprint add-controllers.
- */
-@Data
 @Getter
 @Setter
 @ToString()
@@ -37,6 +35,7 @@ public class Item {
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private Set<Comment> comments;
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -52,13 +51,5 @@ public class Item {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, available, owner);
-    }
-
-    public int getOwner() {
-        return owner;
-    }
-
-    public void setOwner(int owner) {
-        this.owner = owner;
     }
 }
