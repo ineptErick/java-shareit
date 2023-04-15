@@ -20,6 +20,7 @@ import ru.practicum.shareit.util.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -159,19 +160,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void setBookingDate(List<ItemDto> items) {
-        List<Long> itemsId = items.stream()
-                .map(ItemDto::getId).collect(Collectors.toList());
+        List<Long> itemsId = items.stream().map(ItemDto::getId).collect(Collectors.toList());
 
-        List<BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now());
+        Map<Long,BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(bookingDate -> bookingDate.getId(), Function.identity(), (o,o1) -> o));
+        Map<Long,BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(bookingDate -> bookingDate.getId(), Function.identity(), (o,o1) -> o));
+
         if (!allNextBooking.isEmpty()) {
-            for (int i = 0; i < allNextBooking.size(); i++) {
-                items.get(i).setNextBooking(allNextBooking.get(i));
+            for (ItemDto item : items) {
+                item.setNextBooking(allNextBooking.get(item.getId()));
             }
         }
-        List<BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now());
         if (!allLastBooking.isEmpty()) {
-            for (int i = 0; i < allLastBooking.size(); i++) {
-                items.get(i).setLastBooking(allLastBooking.get(i));
+            for (ItemDto item : items) {
+                item.setLastBooking(allLastBooking.get(item.getId()));
             }
         }
     }
