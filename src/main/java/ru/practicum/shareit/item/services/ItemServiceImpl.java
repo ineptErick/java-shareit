@@ -162,8 +162,8 @@ public class ItemServiceImpl implements ItemService {
     private void setBookingDate(List<ItemDto> items) {
         List<Long> itemsId = items.stream().map(ItemDto::getId).collect(Collectors.toList());
 
-        Map<Long, BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(bookingDate -> bookingDate.getId(), Function.identity(), (o, o1) -> o));
-        Map<Long, BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(bookingDate -> bookingDate.getId(), Function.identity(), (o, o1) -> o));
+        Map<Long, BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(BookingDate::getId, Function.identity(), (o, o1) -> o));
+        Map<Long, BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(BookingDate::getId, Function.identity(), (o, o1) -> o));
 
         if (!allNextBooking.isEmpty()) {
             for (ItemDto item : items) {

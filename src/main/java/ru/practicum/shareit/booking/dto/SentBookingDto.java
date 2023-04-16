@@ -6,26 +6,25 @@ import ru.practicum.shareit.util.BookingStatus;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SentBookingDto {
+    private long id;
     private LocalDateTime start;
     private LocalDateTime end;
+    private Item item;
+    private Booker booker;
     private BookingStatus status;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     public static class Booker {
-        private long id;
-        private String name;
+        private final long id;
+        private final String name;
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     public static class Item {
-        private long id;
-        private String name;
+        private final long id;
+        private final String name;
     }
 }
