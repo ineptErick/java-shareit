@@ -1,27 +1,29 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.booking.model.BookingDate;
-import ru.practicum.shareit.item.model.Comment;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.Create;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
-    private Long id;
-    @NotBlank
+
+    private long id;
+
+    @NotBlank(groups = Create.class, message = "Name should not be empty")
     private String name;
-    @NotBlank
+
+    @NotBlank(groups = Create.class, message = "Item description should not be empty")
     private String description;
-    @NotNull
+
+    @NotNull(groups = Create.class, message = "Item available should not be empty")
     private Boolean available;
 
-    private BookingDate lastBooking;
-    private BookingDate nextBooking;
-
-    private Set<Comment> comments;
-
-
+    private Long requestId;
 }

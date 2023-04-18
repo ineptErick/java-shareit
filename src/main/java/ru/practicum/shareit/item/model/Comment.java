@@ -1,29 +1,35 @@
 package ru.practicum.shareit.item.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "comments")
-@Data
-@NoArgsConstructor
 public class Comment {
+
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "text")
+    @Column(name = "comment_id")
+    private long id;
+
+    @Column(name = "text", nullable = false, length = 4000)
     private String text;
-    @Column(name = "author_name")
-    private String authorName;
-    @Column(name = "created")
-    private LocalDateTime created;
-    @JsonIgnore
+
     @ManyToOne
-    @JoinColumn(name = "item_id", referencedColumnName = "id")
+    @JoinColumn(name = "item_id", referencedColumnName = "item_id")
     private Item item;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id", referencedColumnName = "user_id")
+    private User author;
+
+    @Column(name = "created")
+    private LocalDateTime created = LocalDateTime.now();
 }

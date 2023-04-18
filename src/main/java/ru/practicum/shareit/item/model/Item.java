@@ -1,55 +1,44 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import ru.practicum.shareit.requests.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.Objects;
-import java.util.Set;
 
-@Getter
-@Setter
-@ToString()
 @Entity
 @Table(name = "items")
-@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class Item {
+
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "name")
+    @Column(name = "item_id")
+    @EqualsAndHashCode.Exclude
+    private long id;
+
+    @Column(name = "item_name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "item_description")
     private String description;
 
     @Column(name = "is_available")
     private Boolean available;
 
-    @Column(name = "owner_id")
-    private Long owner;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
-    private Set<Comment> comments;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
+    @EqualsAndHashCode.Exclude
+    private User owner;
 
+    @Transient
+    private ItemRequest itemRequest;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return Objects.equals(id, item.id) &&
-                Objects.equals(name, item.name) &&
-                Objects.equals(description, item.description) &&
-                Objects.equals(available, item.available) &&
-                Objects.equals(owner, item.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, available, owner);
+    public Item() {
     }
 }
