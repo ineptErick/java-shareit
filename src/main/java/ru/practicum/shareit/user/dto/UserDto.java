@@ -1,23 +1,15 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.Create;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class UserDto {
-
-    private long id;
-
-    @NotBlank(groups = Create.class, message = "Name should not be empty")
+    private Long id;
     private String name;
-
-    @NotBlank(groups = Create.class, message = "Incorrect email")
-    @Pattern(regexp = "^(.+)@(\\S+)$", groups = Create.class, message = "Incorrect email")
+    @Email
+    @NotNull
     private String email;
-
-    public UserDto() {
-    }
 }
