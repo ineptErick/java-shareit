@@ -9,4 +9,5 @@ public interface BookingDate {
 
     Long getBookerId();
 
+    Long getItemId();
 }

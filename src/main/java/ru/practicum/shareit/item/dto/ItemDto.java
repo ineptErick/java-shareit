@@ -23,5 +23,10 @@ public class ItemDto {
 
     private Set<Comment> comments;
 
-
+    @Override
+    public String toString() {
+        return "ItemDto{" +
+                "id=" + id +
+                '}';
+    }
 }

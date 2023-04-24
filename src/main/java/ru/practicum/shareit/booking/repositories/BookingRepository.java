@@ -45,13 +45,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     boolean existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(Long userId, Long itemId, BookingStatus status, LocalDateTime startDate);
 
-    @Query(value = "SELECT b.id, b.start_date AS bookingDate, b.booker_id AS bookerId " +
+    @Query(value = "SELECT id, b.item_id as itemId, b.start_date AS bookingDate, b.booker_id AS bookerId " +
             "FROM bookings b WHERE b.item_id IN (?1) AND b.start_date > ?2 AND NOT b.status = 'REJECTED' " +
-            "ORDER BY b.start_date LIMIT 1", nativeQuery = true)
-    List<BookingDate> findAllNextBooking(List<Long> ownerId, LocalDateTime currentTime);
+            "ORDER BY b.start_date", nativeQuery = true)
+    List<BookingDate> findAllNextBooking(List<Long> itemsId, LocalDateTime currentTime);
 
-    @Query(value = "SELECT b.id, b.start_date AS bookingDate, b.booker_id AS bookerId " +
-            "FROM bookings b WHERE b.item_id IN (?1) AND b.start_date < ?2 " +
-            "ORDER BY b.start_date DESC LIMIT 1", nativeQuery = true)
-    List<BookingDate> findAllLastBooking(List<Long> ownerId, LocalDateTime currentTime);
+    @Query(value = "SELECT id, b.item_id as itemId , b.start_date AS bookingDate, b.booker_id AS bookerId " +
+            "FROM bookings b WHERE b.item_id IN (?1) AND b.end_date < ?2 " +
+            "ORDER BY b.end_date DESC", nativeQuery = true)
+    List<BookingDate> findAllLastBooking(List<Long> itemsId, LocalDateTime currentTime);
 }
