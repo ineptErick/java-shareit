@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,13 @@ import ru.practicum.shareit.user.services.UserService;
 import ru.practicum.shareit.util.BookingState;
 import ru.practicum.shareit.util.BookingStatus;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional(readOnly = true)
 @Service
+@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemService itemService;
@@ -42,18 +44,21 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public SentBookingDto getBooking(long bookingId, long userId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFound("User not found: " + bookingId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + bookingId));
         if (booking.getBooker().getId() == userId || booking.getItem().getOwner() == userId) {
             return convertBookingToDto(booking);
         } else {
-            throw new InappropriateUser("Inappropriate User: " + userId);
+            throw new InappropriateUserException("Inappropriate User: " + userId);
         }
     }
 
     @Transactional(readOnly = true)
     public List<SentBookingDto> getAllUserBookings(long userId, String state, String userType) {
         if (Arrays.stream(BookingState.values()).noneMatch(enumState -> enumState.name().equals(state))) {
-            throw new UnsupportedStatus("Unknown state");
+            log.debug("booking not found for user {}", userId);
+            throw new UnsupportedStatusException("Unknown state: " + state);
+            // Не забываем также передать в сообщение об ошибке тот state, что был передан
+            // - done
         }
         userService.isExistUser(userId);
         List<Booking> userBookings = userType.equals(USER)
@@ -76,38 +81,46 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public SentBookingDto updateBookingStatus(long bookingId, String approved, long userId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFound("Booking not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
         isValidUpdateBookingStatusRequest(booking, userId, bookingId);
         setBookingStatus(booking, approved);
         return convertBookingToDto(bookingRepository.save(booking));
     }
 
     private void isValidBookingTimeRequest(ReceivedBookingDto bookingDto) {
-        if (bookingDto.getStart() == null ||
-                bookingDto.getEnd() == null ||
-                (LocalDateTime.now().isAfter(bookingDto.getStart())) ||
-                bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
-                bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
-                bookingDto.getStart().isEqual(bookingDto.getEnd())) {
-            throw new BadRequest("Not valid fields");
+        if (
+            // Часть проверок можно будет исключить,
+            // так как теперь они реализованы с помощью аннотаций валидации
+            // - done
+
+            // (предложение) Если будет интересно, то эту валидацию можно было бы реализовать с помощью аннотации валидации над классом,
+            // чтобы поддерживать декларативный подход
+            //https://devcolibri.com/spring-mvc-кастомная-аннотация-для-валидации/
+            //Кстати, если будет интересно то, как реализовать кастомную аннотацию валидации
+            // на уровне класса ReceivedBookingDto
+            // https://github.com/TyutterinYakov/CustomValidationClassLevel
+            // - изучила, но решила пока не делать этого в данном проекте
+
+                bookingDto.getStart().compareTo(bookingDto.getEnd()) >= 0) {
+            throw new BadRequestException("Not valid fields");
         }
     }
 
     private void isValidBookingItemRequest(Item item, long userId) {
         if (item.getAvailable().equals(false)) {
-            throw new ItemIsUnavailable("Item " + item.getId() + "is unavailable");
+            throw new ItemIsUnavailableException("Item " + item.getId() + "is unavailable");
         }
         if (item.getOwner() == userId) {
-            throw new InappropriateUser("Owner cant booking own item");
+            throw new InappropriateUserException("Owner cant booking own item");
         }
     }
 
     private void isValidUpdateBookingStatusRequest(Booking booking, long userId, long bookingId) {
         if (booking.getItem().getOwner() != userId) {
-            throw new InappropriateUser("Inappropriate User: " + userId);
+            throw new InappropriateUserException("Inappropriate User: " + userId);
         }
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {
-            throw new BookingStatusAlreadySet("Booking status already set: " + bookingId);
+            throw new BookingStatusAlreadySetException("Booking status already set: " + bookingId);
         }
     }
 

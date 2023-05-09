@@ -3,15 +3,19 @@ package ru.practicum.shareit.item.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Setter
-@ToString()
+// Перед тем, как использовать аннотации для автоматической генерации кода в классах-сущностях,
+// хорошо было бы ознакомиться со статьей
+// https://habr.com/ru/company/haulmont/blog/564682/
+// Аналогично в других местах
+// - done
 @Entity
 @Table(name = "items")
 @NoArgsConstructor
@@ -33,8 +37,15 @@ public class Item {
     private Long owner;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
-    private Set<Comment> comments;
 
+    // Лучше избегать связи @OneToMany, так как по дефолту данные подтягиваются лениво,
+    // то есть FetchType.LAZY, то есть при каждом вызове геттера для этого поля будет происходить обращение к БД,
+    // из-за чего будут плодится n-лишние запросы.
+    // Если мы будем использовать FetchType.EAGER, тогда каждый раз при получении вещи мы будем тащить
+    // и ее комментарии, что тоже не совсем оптимально.
+    // В сервисе добавил уточнение, как поступить
+    // - done
+    private Set<Comment> comments;
 
     @Override
     public boolean equals(Object o) {
@@ -51,5 +62,9 @@ public class Item {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, available, owner);
+    }
+
+    public Set<Comment> getComments() {
+        return new HashSet<>();
     }
 }

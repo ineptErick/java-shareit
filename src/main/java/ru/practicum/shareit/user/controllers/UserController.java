@@ -1,11 +1,13 @@
 package ru.practicum.shareit.user.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.Create;
+import ru.practicum.shareit.user.dto.Update;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.services.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -29,12 +31,18 @@ public class UserController {
     }
 
     @PostMapping()
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto createUser(@Validated(Create.class) @RequestBody UserDto userDto) {
+        // Кстати, вместо @Valid можно использовать такую аннотацию @Validated(Create.class).
+        // Таким образом мы указываем, какую группу аннотаций следует учитывать.
+        // Create - это интерфейс, который ты создаешь самостоятельно,
+        // он будет пустым и служит лишь для указания группы
+        // Аналогично следует поступить при обновлении, но там будет аннотация @Validated(Update.class)
+        // - поняла, но пока не стала реализовывать это в этом проекте
         return userService.createUser(userDto);
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable long id) {
+    public UserDto updateUser(@Validated(Update.class) @RequestBody UserDto userDto, @PathVariable long id) {
         return userService.updateUser(userDto, id);
     }
 

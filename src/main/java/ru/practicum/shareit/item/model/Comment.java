@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +21,9 @@ public class Comment {
     private String authorName;
     @Column(name = "created")
     private LocalDateTime created;
-    @JsonIgnore
+
+    // Аннотация @JsonIgnore более не потребуется
+    // - done
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;

@@ -1,13 +1,13 @@
 package ru.practicum.shareit.exceptions;
 
-public class ErrorResponse {
+public class ErrorResponseException {
     private String timestamp;
     private int status;
     private String error;
     private String message;
     private String path;
 
-    public ErrorResponse(String timestamp, int status, String error, String message, String path) {
+    public ErrorResponseException(String timestamp, int status, String error, String message, String path) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;

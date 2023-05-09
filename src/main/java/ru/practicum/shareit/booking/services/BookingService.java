@@ -5,7 +5,6 @@ import ru.practicum.shareit.booking.dto.SentBookingDto;
 
 import java.util.List;
 
-
 public interface BookingService {
 
     SentBookingDto getBooking(long bookingId, long userId);

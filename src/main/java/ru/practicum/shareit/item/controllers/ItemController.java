@@ -3,8 +3,9 @@ package ru.practicum.shareit.item.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemReplyDto;
 import ru.practicum.shareit.item.services.ItemService;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemCreationDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,42 +21,43 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable long itemId,
-                               @RequestHeader(value = USER_ID) long userId) {
+    public ItemReplyDto getItemById(@PathVariable long itemId,
+                                    @RequestHeader(value = USER_ID) long userId) {
         return itemService.getItemDtoById(itemId, userId);
     }
 
     @GetMapping()
-    public List<ItemDto> getItems(@RequestHeader(value = USER_ID) long userId) {
+    public List<ItemReplyDto> getItems(@RequestHeader(value = USER_ID) long userId) {
         return itemService.getItems(userId);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItemsByText(@RequestParam String text) {
+    public List<ItemReplyDto> searchItemsByText(@RequestParam String text) {
         return itemService.searchItemByText(text);
     }
 
-
     @PostMapping()
-    public ItemDto createItem(@RequestHeader(value = USER_ID) long userId,
-                              @Valid @RequestBody ItemDto itemDto) {
-        return itemService.createItem(itemDto, userId);
+    public ItemReplyDto createItem(@RequestHeader(value = USER_ID) long userId,
+                                   @Valid @RequestBody ItemCreationDto itemCreationDto) {
+        return itemService.createItem(itemCreationDto, userId);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto createComment(@RequestBody CommentDto commentDto,
+    public CommentDto createComment(@Valid @RequestBody CommentDto commentDto,
+                                    // Не забываем использовать @Valid перед параметром метода,
+                                    // чтобы аннотации валидации из класса CommentDto стали учитываться
+                                    // - done
                                     @PathVariable long itemId,
                                     @RequestHeader(value = USER_ID) long userId) {
         return itemService.createComment(commentDto, itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@PathVariable long itemId,
-                              @RequestBody ItemDto itemDto,
-                              @RequestHeader(value = USER_ID) long userId) {
-        return itemService.updateItem(itemDto, itemId, userId);
+    public ItemReplyDto updateItem(@PathVariable long itemId,
+                                   @RequestBody ItemCreationDto itemCreationDto,
+                                   @RequestHeader(value = USER_ID) long userId) {
+        return itemService.updateItem(itemCreationDto, itemId, userId);
     }
 
     @DeleteMapping("/{id}")
