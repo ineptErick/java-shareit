@@ -11,11 +11,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-// Перед тем, как использовать аннотации для автоматической генерации кода в классах-сущностях,
-// хорошо было бы ознакомиться со статьей
-// https://habr.com/ru/company/haulmont/blog/564682/
-// Аналогично в других местах
-// - done
 @Entity
 @Table(name = "items")
 @NoArgsConstructor
@@ -37,14 +32,6 @@ public class Item {
     private Long owner;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
-
-    // Лучше избегать связи @OneToMany, так как по дефолту данные подтягиваются лениво,
-    // то есть FetchType.LAZY, то есть при каждом вызове геттера для этого поля будет происходить обращение к БД,
-    // из-за чего будут плодится n-лишние запросы.
-    // Если мы будем использовать FetchType.EAGER, тогда каждый раз при получении вещи мы будем тащить
-    // и ее комментарии, что тоже не совсем оптимально.
-    // В сервисе добавил уточнение, как поступить
-    // - done
     private Set<Comment> comments;
 
     @Override

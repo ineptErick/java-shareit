@@ -32,12 +32,6 @@ public class UserController {
 
     @PostMapping()
     public UserDto createUser(@Validated(Create.class) @RequestBody UserDto userDto) {
-        // Кстати, вместо @Valid можно использовать такую аннотацию @Validated(Create.class).
-        // Таким образом мы указываем, какую группу аннотаций следует учитывать.
-        // Create - это интерфейс, который ты создаешь самостоятельно,
-        // он будет пустым и служит лишь для указания группы
-        // Аналогично следует поступить при обновлении, но там будет аннотация @Validated(Update.class)
-        // - поняла, но пока не стала реализовывать это в этом проекте
         return userService.createUser(userDto);
     }
 

@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemReplyDto;
 import ru.practicum.shareit.item.services.ItemService;
 import ru.practicum.shareit.item.dto.ItemCreationDto;
@@ -44,13 +45,12 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto createComment(@Valid @RequestBody CommentDto commentDto,
-                                    // Не забываем использовать @Valid перед параметром метода,
-                                    // чтобы аннотации валидации из класса CommentDto стали учитываться
+    public CommentDto createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
+                                    // Здесь в качестве параметра метода соответственно будет использоваться CommentRequestDto
                                     // - done
                                     @PathVariable long itemId,
                                     @RequestHeader(value = USER_ID) long userId) {
-        return itemService.createComment(commentDto, itemId, userId);
+        return itemService.createComment(commentRequestDto, itemId, userId);
     }
 
     @PatchMapping("/{itemId}")

@@ -7,10 +7,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class SentBookingDto {
-    // Классы-DTO не должны содержать в себе сложные объекты по типу классов-сущностей.
-    // Мы всегда должны контролировать те данные, что получаем и отдаем.
-    // Не только в целях безопасности, но и производительности,
-    // так как зачем тратить ресурсы на передачу тех данных, что не будут использоваться ->
     private long id;
     private String name;
     private LocalDateTime start;
@@ -19,8 +15,6 @@ public class SentBookingDto {
     private Booker booker;
     private Item item;
 
-    // Можно было бы представить их в виде двух внутренних классов:
-    // - done
     @Getter
     @Setter
     @NoArgsConstructor

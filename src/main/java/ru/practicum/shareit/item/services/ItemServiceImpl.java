@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.BookingDate;
@@ -11,6 +13,7 @@ import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.InappropriateUserException;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemReplyDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.repositories.CommentRepository;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
+@Transactional(readOnly = true)
 @Service
 public class ItemServiceImpl implements ItemService {
     private final ModelMapper mapper;
@@ -34,6 +38,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final UserService userService;
+    private final LocalDateTime dateNow = LocalDateTime.now();
 
     @Autowired
     public ItemServiceImpl(ModelMapper mapper, ItemRepository itemRepository, BookingRepository bookingRepository, CommentRepository commentRepository, UserService userService) {
@@ -57,8 +62,8 @@ public class ItemServiceImpl implements ItemService {
         Item item = getItemById(itemId);
         ItemReplyDto dto = convertItemToDto(item);
         if (item.getOwner() == userId) {
-            dto.setLastBooking(bookingRepository.findLastBooking(itemId, LocalDateTime.now()));
-            dto.setNextBooking(bookingRepository.findNextBooking(itemId, LocalDateTime.now()));
+            dto.setLastBooking(bookingRepository.findLastBooking(itemId, dateNow));
+            dto.setNextBooking(bookingRepository.findNextBooking(itemId, dateNow));
         }
         dto.setComments(commentRepository.findByItem(item).orElse(new HashSet<>()));
         return dto;
@@ -73,11 +78,13 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemReplyDto> getItems(long ownerId) {
-        List<ItemReplyDto> items = itemRepository.findAllByOwner(ownerId).stream()
+        List<ItemReplyDto> items = itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.ASC, "id")).stream()
                 .map(this::convertItemToDto)
-                .sorted(Comparator.comparing(ItemReplyDto::getId))
+                // Сортировку следует выполнить на уровне запроса к БД, чтобы не производить обработку в коде,
+                // так как далее, при работе с пагинацией, это логика станет некорректна,
+                // плюс она не совсем эффективна)
+                // - done
                 .collect(toList());
-
         setBookingDate(items);
         return items;
     }
@@ -93,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto createComment(CommentDto commentDto, long itemId, long userId) {
+    public CommentDto createComment(CommentRequestDto commentDto, long itemId, long userId) {
         isValidComment(commentDto, itemId, userId);
         Comment comment = new Comment();
         comment.setText(commentDto.getText());
@@ -113,15 +120,9 @@ public class ItemServiceImpl implements ItemService {
             throw new InappropriateUserException("Item has a different owner" + userId);
         }
         if (itemCreationDto.getName() != null && !itemCreationDto.getName().isBlank()) {
-            // Хорошо было бы также проверить, что строка не пуста и не состоит только из пробелов
-            // Сделать это удобно с помощью метода isBlank
-            // - done
             item.setName(itemCreationDto.getName());
         }
         if (itemCreationDto.getDescription() != null && !itemCreationDto.getDescription().isBlank()) {
-            // Хорошо было бы также проверить, что строка не пуста и не состоит только из пробелов
-            // Сделать это удобно с помощью метода isBlank
-            // - done
             item.setDescription(itemCreationDto.getDescription());
         }
         if (itemCreationDto.getAvailable() != null) {
@@ -146,14 +147,12 @@ public class ItemServiceImpl implements ItemService {
                 .collect(toList());
     }
 
-    private void isValidComment(CommentDto commentDto, long itemId, long userId) {
-
-        // Более проверка не потребуется, так как она будет реализована с помощью аннотации валидации
-        // - done
-
-        if (!bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(userId, itemId,
-                // До текущего времени должна быть не дата старта бронирования, а дата окончания
-                // - ???
+    private void isValidComment(CommentRequestDto commentDto, long itemId, long userId) {
+        if (!bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(userId, itemId,
+                // До текущего времени должна быть не дата старта бронирования, а дата окончания)
+                // То есть вместо StartBefore должно использоваться EndBefore,
+                // так как оставить комментарий можно только при истекшем бронировании)
+                // - done
                 BookingStatus.APPROVED, LocalDateTime.now())) {
             throw new BadRequestException("User " + userId + "doesnt use this item " + itemId);
         }
@@ -179,26 +178,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void setBookingDate(List<ItemReplyDto> items) {
-        // Следует получить комментарии всех вещей, которые будут возвращены вне цикла
-        // и разбить их на мапу, где ключ - идентификатор вещи, а значение - коллекция из комментариев
-        // Таким образом мы не будем производить n-лишних запросов к БД
-        // Map<Item, List<Comment>> comments = commentRepository.findByItemIn(items, Sort.by(DESC, "created"))
-        //				.stream()
-        //				.collect(groupingBy(Comment::getItem, toList()));
-        // Это лишь предложение по реализации, можно реализовать свою логику,
-        // главное избавиться от обращения к методам репозиториев в циклах
-        // - реализовала другим способом
         List<Long> itemsId = items.stream().map(ItemReplyDto::getId).collect(Collectors.toList());
 
-        Map<Long, BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(bookingDate -> bookingDate.getItemId(), Function.identity(), (o, o1) -> o));
-        Map<Long, BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now()).stream().collect(Collectors.toMap(bookingDate -> bookingDate.getItemId(), Function.identity(), (o, o1) -> o));
-
-        // Порядок при извлечении из БД - не гарантирован.
-        // Следует предварительно разбить коллекцию на мапу, где ключом будет Item(или его идентификатор),
-        // а значением - BookingDate, так как иначе эта логика может отработать некорректно
-        // Следует добавить в BookingDate и идентификатор вещи, к которой относится бронирование
-        // С помощью стримов было бы очень удобно произвести преобразование к мапе
+        Map<Long, BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, dateNow)
+                .stream().collect(Collectors.toMap(BookingDate::getItemId, Function.identity(), (o, o1) -> o1));
+        // Дату LocalDateTime.now() хорошо было бы вынести в отдельную переменную,
+        // и передавать ее в оба метода, чтобы получение осуществлялось для одного момента времени)
         // - done
+        // В данном случае должно быть (o, o1) -> o1), так как сортировка выполнена по возрастанию,
+        // а бронирование с самым большим временем старта, удовлетворяющее условию и будет последним)
+        // - done
+        Map<Long, BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, dateNow)
+                .stream().collect(Collectors.toMap(BookingDate::getItemId, Function.identity(), (o, o1) -> o));
+
         if (!allNextBooking.isEmpty()) {
             for (ItemReplyDto item : items) {
                 item.setNextBooking(allNextBooking.get(item.getId()));

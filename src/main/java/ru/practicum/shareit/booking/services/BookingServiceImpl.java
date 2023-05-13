@@ -57,8 +57,6 @@ public class BookingServiceImpl implements BookingService {
         if (Arrays.stream(BookingState.values()).noneMatch(enumState -> enumState.name().equals(state))) {
             log.debug("booking not found for user {}", userId);
             throw new UnsupportedStatusException("Unknown state: " + state);
-            // Не забываем также передать в сообщение об ошибке тот state, что был передан
-            // - done
         }
         userService.isExistUser(userId);
         List<Booking> userBookings = userType.equals(USER)
@@ -89,18 +87,6 @@ public class BookingServiceImpl implements BookingService {
 
     private void isValidBookingTimeRequest(ReceivedBookingDto bookingDto) {
         if (
-            // Часть проверок можно будет исключить,
-            // так как теперь они реализованы с помощью аннотаций валидации
-            // - done
-
-            // (предложение) Если будет интересно, то эту валидацию можно было бы реализовать с помощью аннотации валидации над классом,
-            // чтобы поддерживать декларативный подход
-            //https://devcolibri.com/spring-mvc-кастомная-аннотация-для-валидации/
-            //Кстати, если будет интересно то, как реализовать кастомную аннотацию валидации
-            // на уровне класса ReceivedBookingDto
-            // https://github.com/TyutterinYakov/CustomValidationClassLevel
-            // - изучила, но решила пока не делать этого в данном проекте
-
                 bookingDto.getStart().compareTo(bookingDto.getEnd()) >= 0) {
             throw new BadRequestException("Not valid fields");
         }

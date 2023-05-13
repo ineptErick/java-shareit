@@ -14,11 +14,6 @@ import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @Service
-// Так как ты познакомилась с транзакциями, хорошо было бы все сервисы сделать транзакционными
-// Для этого необходимо навесить над ними аннотацию
-// @Transactional(readOnly = true), что указывает на то, что фиксация изменений не будет производиться
-// А над теми методами, где требуется фиксация в БД, необходимо использовать @Transactional
-// - done
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper mapper;
@@ -59,29 +54,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateUser(UserDto userDto, long userId) {
         isExistUser(userId);
-        // Действительно ли требуется производить дополнительный запрос для проверки наличия пользователя?
-        // Ниже, вместо get, было бы удобно использовать orElseThrow
-        // - done
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("There is no such a user"));
 
         if (userDto.getName() != null && !userDto.getName().isBlank()) {
-            // Хорошо было бы также проверить, что строка не пуста и не состоит только из пробелов
-            // Сделать это удобно с помощью метода isBlank
-            // - done
             user.setName(userDto.getName());
         }
         if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
-            // Хорошо было бы также проверить, что строка не пуста и не состоит только из пробелов
-            // Сделать это удобно с помощью метода isBlank
-            // - done
             user.setEmail(userDto.getEmail());
         }
-
         return convertUserToDto(user);
-        // Вызов метода save более не будет требоваться,
-        // так как мы будем работать в рамках транзакции с полученным объектом класса-сущности из БД,
-        // а значит изменения будут автоматически зафиксированы
-        // - done
     }
 
     @Override
@@ -104,11 +85,5 @@ public class UserServiceImpl implements UserService {
     private UserDto convertUserToDto(User user) {
         return mapper.map(user, UserDto.class);
     }
-
-    // (предложение) Дополнительный запрос к БД не требуется,
-    // так как на уровне таблицы создан индекс для поддержания уникальности почты,
-    // следовательно - при попытке записи - возникнет исключение,
-    // которое можно обработать в одном из хендлеров и вернуть требуемый статус
-    // - isUsedEmail удалила
 
 }

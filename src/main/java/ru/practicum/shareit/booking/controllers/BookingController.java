@@ -11,9 +11,6 @@ import ru.practicum.shareit.user.dto.Create;
 
 import java.util.List;
 
-// Также можно воспользоваться аннотацией @RequiredArgsConstructor из lombok,
-// благодаря которой автоматически будет сгенерирован конструктор для финальных полей
-// - done
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/bookings")
@@ -29,9 +26,6 @@ public class BookingController {
         return bookingService.getBooking(bookingId, userId);
     }
 
-    // Если указано defaultValue, это уже подразумевает, что параметр не является обязательным,
-    // следовательно required = false не требуется
-    // - done
     @GetMapping()
     public List<SentBookingDto> getAllUserBookings(@RequestHeader(value = USER_ID) long userId,
                                                    @RequestParam(name = "state",
@@ -39,9 +33,6 @@ public class BookingController {
         return bookingService.getAllUserBookings(userId, state, "USER");
     }
 
-    // Если указано defaultValue, это уже подразумевает, что параметр не является обязательным,
-    // следовательно required = false не требуется
-    // - done
     @GetMapping("/owner")
     public List<SentBookingDto> getAllOwnerBookings(@RequestHeader(value = USER_ID) long userId,
                                                     @RequestParam(name = "state",
@@ -51,7 +42,7 @@ public class BookingController {
 
     @PostMapping()
     public SentBookingDto createBooking(@Validated(Create.class)
-                                            @RequestBody ReceivedBookingDto bookingDto,
+                                        @RequestBody ReceivedBookingDto bookingDto,
                                         @RequestHeader(value = USER_ID) long userId) {
         return bookingService.createBooking(bookingDto, userId);
     }

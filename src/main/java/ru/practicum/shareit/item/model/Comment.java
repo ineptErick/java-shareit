@@ -21,9 +21,6 @@ public class Comment {
     private String authorName;
     @Column(name = "created")
     private LocalDateTime created;
-
-    // Аннотация @JsonIgnore более не потребуется
-    // - done
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;
