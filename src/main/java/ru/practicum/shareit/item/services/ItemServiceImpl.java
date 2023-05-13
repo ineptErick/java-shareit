@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final UserService userService;
-    private final LocalDateTime dateNow = LocalDateTime.now();
 
     @Autowired
     public ItemServiceImpl(ModelMapper mapper, ItemRepository itemRepository, BookingRepository bookingRepository, CommentRepository commentRepository, UserService userService) {
@@ -59,6 +57,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public ItemReplyDto getItemDtoById(long itemId, long userId) {
+        LocalDateTime dateNow = LocalDateTime.now();
         Item item = getItemById(itemId);
         ItemReplyDto dto = convertItemToDto(item);
         if (item.getOwner() == userId) {
@@ -179,6 +178,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void setBookingDate(List<ItemReplyDto> items) {
         List<Long> itemsId = items.stream().map(ItemReplyDto::getId).collect(Collectors.toList());
+        LocalDateTime dateNow = LocalDateTime.now();
 
         Map<Long, BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, dateNow)
                 .stream().collect(Collectors.toMap(BookingDate::getItemId, Function.identity(), (o, o1) -> o1));
