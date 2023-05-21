@@ -10,6 +10,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class ItemReplyDto {
+    private Long requestId;
 
     private Long id;
 

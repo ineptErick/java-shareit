@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.services;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,16 +77,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemReplyDto> getItems(long ownerId) {
-        List<ItemReplyDto> items = itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.ASC, "id")).stream()
+    public List<ItemReplyDto> getItems(long ownerId, Integer from, Integer size) {
+        List<Item> items = getItemsPage(ownerId, from, size);
+        List<ItemReplyDto> itemsDto = itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.ASC, "id")).stream()
                 .map(this::convertItemToDto)
-                // Сортировку следует выполнить на уровне запроса к БД, чтобы не производить обработку в коде,
-                // так как далее, при работе с пагинацией, это логика станет некорректна,
-                // плюс она не совсем эффективна)
-                // - done
                 .collect(toList());
-        setBookingDate(items);
-        return items;
+        setBookingDate(itemsDto);
+        return itemsDto;
     }
 
     @Override
@@ -102,10 +100,7 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto createComment(CommentRequestDto commentDto, long itemId, long userId) {
         isValidComment(commentDto, itemId, userId);
         Comment comment = new Comment();
-        comment.setText(commentDto.getText());
-        comment.setAuthorName(userService.getUserById(userId).getName());
-        comment.setItem(getItemById(itemId));
-        comment.setCreated(LocalDateTime.now());
+        setCommentField(comment, commentDto, itemId, userId);
         return convertCommentToDto(commentRepository.save(comment));
     }
 
@@ -118,15 +113,8 @@ public class ItemServiceImpl implements ItemService {
         if (item.getOwner() != userId) {
             throw new InappropriateUserException("Item has a different owner" + userId);
         }
-        if (itemCreationDto.getName() != null && !itemCreationDto.getName().isBlank()) {
-            item.setName(itemCreationDto.getName());
-        }
-        if (itemCreationDto.getDescription() != null && !itemCreationDto.getDescription().isBlank()) {
-            item.setDescription(itemCreationDto.getDescription());
-        }
-        if (itemCreationDto.getAvailable() != null) {
-            item.setAvailable(itemCreationDto.getAvailable());
-        }
+
+        setUpdateItemFields(item, itemCreationDto);
         return convertItemToDto(item);
     }
 
@@ -148,12 +136,34 @@ public class ItemServiceImpl implements ItemService {
 
     private void isValidComment(CommentRequestDto commentDto, long itemId, long userId) {
         if (!bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(userId, itemId,
-                // До текущего времени должна быть не дата старта бронирования, а дата окончания)
-                // То есть вместо StartBefore должно использоваться EndBefore,
-                // так как оставить комментарий можно только при истекшем бронировании)
-                // - done
                 BookingStatus.APPROVED, LocalDateTime.now())) {
             throw new BadRequestException("User " + userId + "doesnt use this item " + itemId);
+        }
+    }
+
+    private void setCommentField(Comment comment, CommentDto commentDto, long itemId, long userId) {
+        comment.setText(commentDto.getText());
+        comment.setAuthorName(userService.getUserById(userId).getName());
+        comment.setItem(getItemById(itemId));
+        comment.setCreated(LocalDateTime.now());
+    }
+
+    private void setCommentField(Comment comment, CommentRequestDto commentDto, long itemId, long userId) {
+        comment.setText(commentDto.getText());
+        comment.setAuthorName(userService.getUserById(userId).getName());
+        comment.setItem(getItemById(itemId));
+        comment.setCreated(LocalDateTime.now());
+    }
+
+    private void setUpdateItemFields(Item item, ItemCreationDto itemDto) {
+        if (itemDto.getName() != null) {
+            item.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription() != null) {
+            item.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null) {
+            item.setAvailable(itemDto.getAvailable());
         }
     }
 
@@ -176,18 +186,23 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    private List<Item> getItemsPage(long ownerId, Integer from, Integer size) {
+        if (from == null && size == null) {
+            return itemRepository.findAllByOwner(ownerId,Sort.by(Sort.Direction.ASC, "id"));
+        } else {
+            if ((from == 0 && size == 0) || (from < 0 || size < 0)) {
+                throw new BadRequestException("Request without pagination");
+            }
+            return itemRepository.findAllByOwner(ownerId, PageRequest.of(from, size)).toList();
+        }
+    }
+
     private void setBookingDate(List<ItemReplyDto> items) {
         List<Long> itemsId = items.stream().map(ItemReplyDto::getId).collect(Collectors.toList());
         LocalDateTime dateNow = LocalDateTime.now();
 
         Map<Long, BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, dateNow)
                 .stream().collect(Collectors.toMap(BookingDate::getItemId, Function.identity(), (o, o1) -> o1));
-        // Дату LocalDateTime.now() хорошо было бы вынести в отдельную переменную,
-        // и передавать ее в оба метода, чтобы получение осуществлялось для одного момента времени)
-        // - done
-        // В данном случае должно быть (o, o1) -> o1), так как сортировка выполнена по возрастанию,
-        // а бронирование с самым большим временем старта, удовлетворяющее условию и будет последним)
-        // - done
         Map<Long, BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, dateNow)
                 .stream().collect(Collectors.toMap(BookingDate::getItemId, Function.identity(), (o, o1) -> o));
 

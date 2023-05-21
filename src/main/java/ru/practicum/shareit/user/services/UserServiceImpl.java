@@ -4,12 +4,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.AlreadyUsedEmailException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repositories.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
@@ -54,6 +56,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateUser(UserDto userDto, long userId) {
         isExistUser(userId);
+        isUsedEmail(userDto.getEmail(), userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("There is no such a user"));
 
         if (userDto.getName() != null && !userDto.getName().isBlank()) {
@@ -86,4 +89,10 @@ public class UserServiceImpl implements UserService {
         return mapper.map(user, UserDto.class);
     }
 
+    private void isUsedEmail(String email, long userId) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent() && user.get().getId() != userId) {
+            throw new AlreadyUsedEmailException(email);
+        }
+    }
 }

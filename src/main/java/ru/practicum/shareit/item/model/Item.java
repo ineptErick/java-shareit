@@ -34,6 +34,9 @@ public class Item {
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private Set<Comment> comments;
 
+    @Column(name = "request_id")
+    private Long requestId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

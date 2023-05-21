@@ -13,8 +13,5 @@ public class UserDto {
     private String name;
     @Email(groups = {Create.class, Update.class})
     @NotEmpty(groups = {Create.class})
-    // В данном случае следует использовать не @NotNull,
-    // а @NotEmpty, так как @Email допускает и пустую строку, за корректное значение)
-    // - done
     private String email;
 }
