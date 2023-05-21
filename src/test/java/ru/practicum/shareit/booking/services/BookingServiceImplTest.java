@@ -42,11 +42,11 @@ public class BookingServiceImplTest {
 
     @Test
     public void testGetBookingReturnsBookingDtoWhenUserIsAuthorized() {
-        User booker = new User();
+        SentBookingDto.Booker booker = new SentBookingDto.Booker();
         booker.setId(USER_ID);
         User owner = new User();
         owner.setId(3L);
-        Item item = new Item();
+        SentBookingDto.Item item = new  SentBookingDto.Item();
         item.setOwner(3L);
         SentBookingDto booking = new SentBookingDto();
         booking.setBooker(booker);
