@@ -130,7 +130,7 @@ public class ItemRequestControllerTest {
         mockMvc.perform(get("/requests/{requestId}", requestId)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is((int) requestId)));
+                .andExpect(jsonPath("$.id", is(requestId)));
     }
 
     @Test

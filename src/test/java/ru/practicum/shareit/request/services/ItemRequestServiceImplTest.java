@@ -70,8 +70,8 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetRequestById() {
-        Long userId = 1;
-        Long requestId = 1;
+        Long userId = 1L;
+        Long requestId = 1L;
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setId(requestId);
         ItemRequest request = new ItemRequest();
@@ -88,8 +88,8 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetRequestByIdInvalidUser() {
-        Long userId = 1000;
-        Long requestId = 1;
+        Long userId = 1000L;
+        Long requestId = 1L;
         ItemRequest request = new ItemRequest();
         request.setOwner(userId);
 
@@ -99,8 +99,8 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetRequestByIdInvalidRequest() {
-        Long userId = 1;
-        Long requestId = -1;
+        Long userId = 1L;
+        Long requestId = (long) -1;
         when(requestService.getRequestById(requestId, userId)).thenThrow(new EntityNotFoundException("Entity not found"));
 
         assertThrows(EntityNotFoundException.class, () -> requestService.getRequestById(requestId, userId));
@@ -108,7 +108,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetOwnerRequests() {
-        Long ownerId = 1;
+        Long ownerId = 1L;
         List<ItemRequestDto> requests = new ArrayList<>();
         requests.add(new ItemRequestDto());
         requests.add(new ItemRequestDto());
@@ -123,7 +123,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetOwnerRequestsInvalidUser() {
-        Long ownerId = -1;
+        Long ownerId = (long) -1;
         when(requestService.getOwnerRequests(ownerId)).thenThrow(new EntityNotFoundException("Entity not found"));
 
         assertThrows(EntityNotFoundException.class, () -> requestService.getOwnerRequests(ownerId));

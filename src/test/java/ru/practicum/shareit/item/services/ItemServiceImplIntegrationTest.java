@@ -179,7 +179,7 @@ public class ItemServiceImplIntegrationTest {
         ItemCreationDto itemDto = new ItemCreationDto(); // мб тут reply dto, проверь
         itemDto.setDescription("update");
 
-        assertThrows(InappropriateUserException.class, () -> itemService.updateItem(itemDto, item.getId(), 1000));
+        assertThrows(InappropriateUserException.class, () -> itemService.updateItem(itemDto, item.getId(), 1000L));
     }
 
     @Test
@@ -199,7 +199,7 @@ public class ItemServiceImplIntegrationTest {
         ItemCreationDto itemDto = new ItemCreationDto();
         itemDto.setDescription("update");
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(itemDto, 1000, savedUser.getId()));
+        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(itemDto, 1000L, savedUser.getId()));
     }
 
     @Test
@@ -318,7 +318,7 @@ public class ItemServiceImplIntegrationTest {
         itemDto.setDescription("Description 1");
         itemDto.setAvailable(true);
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.createItem(itemDto, 1000));
+        assertThrows(EntityNotFoundException.class, () -> itemService.createItem(itemDto, 1000L));
     }
 
     @Test
