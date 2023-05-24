@@ -36,7 +36,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void testCreateRequestSuccess() {
-        long userId = 1L;
+        Long userId = 1L;
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setId(1L);
         requestDto.setDescription("Test Description");
@@ -59,7 +59,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void testCreateRequestWithInvalidUserId() {
-        long userId = 1000L;
+        Long userId = 1000L;
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setDescription("Test Description");
 
@@ -70,8 +70,8 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetRequestById() {
-        long userId = 1;
-        long requestId = 1;
+        Long userId = 1;
+        Long requestId = 1;
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setId(requestId);
         ItemRequest request = new ItemRequest();
@@ -88,8 +88,8 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetRequestByIdInvalidUser() {
-        long userId = 1000;
-        long requestId = 1;
+        Long userId = 1000;
+        Long requestId = 1;
         ItemRequest request = new ItemRequest();
         request.setOwner(userId);
 
@@ -99,8 +99,8 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetRequestByIdInvalidRequest() {
-        long userId = 1;
-        long requestId = -1;
+        Long userId = 1;
+        Long requestId = -1;
         when(requestService.getRequestById(requestId, userId)).thenThrow(new EntityNotFoundException("Entity not found"));
 
         assertThrows(EntityNotFoundException.class, () -> requestService.getRequestById(requestId, userId));
@@ -108,7 +108,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetOwnerRequests() {
-        long ownerId = 1;
+        Long ownerId = 1;
         List<ItemRequestDto> requests = new ArrayList<>();
         requests.add(new ItemRequestDto());
         requests.add(new ItemRequestDto());
@@ -123,7 +123,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void testGetOwnerRequestsInvalidUser() {
-        long ownerId = -1;
+        Long ownerId = -1;
         when(requestService.getOwnerRequests(ownerId)).thenThrow(new EntityNotFoundException("Entity not found"));
 
         assertThrows(EntityNotFoundException.class, () -> requestService.getOwnerRequests(ownerId));

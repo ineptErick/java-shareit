@@ -37,8 +37,8 @@ public class BookingServiceImplTest {
     @MockBean
     private BookingService bookingService;
 
-    private static final long BOOKING_ID = 1L;
-    private static final long USER_ID = 2L;
+    private static final Long BOOKING_ID = 1L;
+    private static final Long USER_ID = 2L;
 
     @Test
     public void testGetBookingReturnsBookingDtoWhenUserIsAuthorized() {
@@ -87,7 +87,7 @@ public class BookingServiceImplTest {
 
     @Test
     public void testGetAllUserBookingsUnknownState() {
-        long userId = 1L;
+        Long userId = 1L;
         String state = "INVALID";
         String userType = "BOOKER";
         Integer from = 0;
@@ -108,7 +108,7 @@ public class BookingServiceImplTest {
         bookingDto.setItemId(item.getId());
         bookingDto.setStart(LocalDateTime.now().plusHours(2));
         bookingDto.setEnd(LocalDateTime.now().minusHours(5));
-        long userId = 2L;
+        Long userId = 2L;
         when(bookingService.createBooking(bookingDto, userId)).thenThrow(new BadRequestException("Not valid fields"));
 
         final BadRequestException exception = assertThrows(BadRequestException.class,
@@ -126,7 +126,7 @@ public class BookingServiceImplTest {
         bookingDto.setItemId(item.getId());
         bookingDto.setStart(LocalDateTime.now().plusHours(2));
         bookingDto.setEnd(LocalDateTime.now().plusHours(5));
-        long userId = -1L;
+        Long userId = -1L;
 
         when(itemService.getItemById(bookingDto.getItemId())).thenReturn(item);
         when(bookingService.createBooking(bookingDto, userId)).thenThrow(new InappropriateUserException("Inappropriate User"));
@@ -142,12 +142,12 @@ public class BookingServiceImplTest {
         ReceivedBookingDto receivedBookingDtoTest = new ReceivedBookingDto();
         SentBookingDto sentBookingDto = new SentBookingDto();
         Booking booking = new Booking();
-        when(bookingService.createBooking(receivedBookingDtoTest, 1)).thenAnswer(invocationOnMock -> {
+        when(bookingService.createBooking(receivedBookingDtoTest, 1L)).thenAnswer(invocationOnMock -> {
             bookingRepository.save(booking);
             return sentBookingDto;
         });
 
-        SentBookingDto actualDto = bookingService.createBooking(receivedBookingDtoTest, 1);
+        SentBookingDto actualDto = bookingService.createBooking(receivedBookingDtoTest, 1L);
 
         verify(bookingRepository).save(booking);
         assertEquals(sentBookingDto, actualDto);

@@ -44,7 +44,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public SentBookingDto getBooking(long bookingId, long userId) {
+    public SentBookingDto getBooking(Long bookingId, Long userId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + bookingId));
         if (booking.getBooker().getId() == userId || booking.getItem().getOwner() == userId) {
@@ -55,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional(readOnly = true)
-    public List<SentBookingDto> getAllUserBookings(long userId, String state, String userType, Integer from, Integer size) {
+    public List<SentBookingDto> getAllUserBookings(Long userId, String state, String userType, Integer from, Integer size) {
         if (Arrays.stream(BookingState.values()).noneMatch(enumState -> enumState.name().equals(state))) {
             log.debug("booking not found for user {}", userId);
             throw new UnsupportedStatusException("Unknown state: " + state);
@@ -68,7 +68,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional
-    public SentBookingDto createBooking(ReceivedBookingDto bookingDto, long userId) {
+    public SentBookingDto createBooking(ReceivedBookingDto bookingDto, Long userId) {
         isValidBookingTimeRequest(bookingDto);
         Item item = itemService.getItemById(bookingDto.getItemId());
         isValidBookingItemRequest(item, userId);
@@ -79,9 +79,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional
-    public SentBookingDto updateBookingStatus(long bookingId, String approved, long userId) {
+    public SentBookingDto updateBookingStatus(Long bookingId, String approved, Long userId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found" + bookingId));
         isValidUpdateBookingStatusRequest(booking, userId, bookingId);
         setBookingStatus(booking, approved);
         return convertBookingToDto(bookingRepository.save(booking));
@@ -94,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void isValidBookingItemRequest(Item item, long userId) {
+    private void isValidBookingItemRequest(Item item, Long userId) {
         if (item.getAvailable().equals(false)) {
             throw new ItemIsUnavailableException("Item " + item.getId() + "is unavailable");
         }
@@ -103,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void isValidUpdateBookingStatusRequest(Booking booking, long userId, long bookingId) {
+    private void isValidUpdateBookingStatusRequest(Booking booking, Long userId, Long bookingId) {
         if (booking.getItem().getOwner() != userId) {
             throw new InappropriateUserException("Inappropriate User: " + userId);
         }
@@ -112,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private List<Booking> getAllUserBookingsWithPagination(long userId, String state, String userType, Integer from, Integer size) {
+    private List<Booking> getAllUserBookingsWithPagination(Long userId, String state, String userType, Integer from, Integer size) {
         if ((from == 0 && size == 0) || (from < 0 || size < 0)) {
             throw new BadRequestException("Request without pagination");
         }
@@ -123,13 +123,13 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookingsSlice.toList();
     }
-    private Slice<Booking> getBookingSlice(long userId, String state, String userType, PageRequest pageRequest) {
+    private Slice<Booking> getBookingSlice(Long userId, String state, String userType, PageRequest pageRequest) {
         return userType.equals(USER)
                 ? bookingRepository.findAllUserBookingsByState(userId, state, pageRequest)
                 : bookingRepository.findAllOwnerBookingsByState(userId, state, pageRequest);
     }
 
-    private List<Booking> getAllUserBookingsWithoutPagination(long userId, String state, String userType) {
+    private List<Booking> getAllUserBookingsWithoutPagination(Long userId, String state, String userType) {
         return userType.equals(USER)
                 ? bookingRepository.findAllUserBookingsByState(userId, state)
                 : bookingRepository.findAllOwnerBookingsByState(userId, state);

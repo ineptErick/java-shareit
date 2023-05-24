@@ -30,8 +30,8 @@ class ItemServiceImplTest {
 
     @Test
     void updateItem_WithValidData_ShouldUpdateItem() {
-        long itemId = 1L;
-        long userId = 2L;
+        Long itemId = 1L;
+        Long userId = 2L;
         ItemCreationDto itemDto = new ItemCreationDto();
         itemDto.setName("new name");
         itemDto.setDescription("new description");
@@ -61,8 +61,8 @@ class ItemServiceImplTest {
 
     @Test
     void updateItem_WithInappropriateUser_ShouldThrowInappropriateUserException() {
-        long itemId = 1L;
-        long userId = 2L;
+        Long itemId = 1L;
+        Long userId = 2L;
         ItemCreationDto itemDto = new ItemCreationDto();
         itemDto.setName("new name");
         itemDto.setDescription("new description");

@@ -9,19 +9,19 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.List;
 
 public interface ItemService {
-    ItemReplyDto createItem(ItemCreationDto itemCreationDto, long userId);
+    ItemReplyDto createItem(ItemCreationDto itemCreationDto, Long userId);
 
-    Item getItemById(long itemId);
+    Item getItemById(Long itemId);
 
-    List<ItemReplyDto> getItems(long userId, Integer from, Integer size);
+    List<ItemReplyDto> getItems(Long userId, Integer from, Integer size);
 
-    void deleteItem(long id);
+    void deleteItem(Long id);
 
-    ItemReplyDto updateItem(ItemCreationDto itemCreationDto, long itemId, long userId);
+    ItemReplyDto updateItem(ItemCreationDto itemCreationDto, Long itemId, Long userId);
 
-    ItemReplyDto getItemDtoById(long itemId, long userId);
+    ItemReplyDto getItemDtoById(Long itemId, Long userId);
 
     List<ItemReplyDto> searchItemByText(String text);
 
-    CommentDto createComment(CommentRequestDto commentDto, long itemId, long userId);
+    CommentDto createComment(CommentRequestDto commentDto, Long itemId, Long userId);
 }

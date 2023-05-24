@@ -21,7 +21,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateUser_withValidUserIdAndNewName_shouldUpdateName() {
-        long userId = 1L;
+        Long userId = 1L;
         UserDto updatedUserDto = new UserDto();
         updatedUserDto.setId(userId);
         updatedUserDto.setName("John Updated");
@@ -41,7 +41,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateUser_withValidUserIdAndNewEmail_shouldUpdateEmail() {
-        long userId = 1L;
+        Long userId = 1L;
         UserDto existingUser = new UserDto();
         existingUser.setId(userId);
         existingUser.setName("John");
@@ -60,7 +60,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateUser_withNonExistentUserId_shouldThrowException() {
-        long userId = 1L;
+        Long userId = 1L;
         UserDto updatedUserDto = new UserDto();
         updatedUserDto.setEmail("update@example.com");
         Mockito.when(userService.updateUser(updatedUserDto, userId)).thenThrow(new EntityNotFoundException("User not found: " + userId));
@@ -73,7 +73,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateUser_withUsedEmail_shouldThrowException() {
-        long userId = 1L;
+        Long userId = 1L;
         User existingUser = new User();
         existingUser.setId(userId);
         existingUser.setName("John");

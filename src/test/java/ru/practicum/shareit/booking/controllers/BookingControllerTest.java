@@ -42,8 +42,8 @@ public class BookingControllerTest {
     @SneakyThrows
     @Test
     void getBooking() {
-        long bookingId = 1L;
-        long userId = 1L;
+        Long bookingId = 1L;
+        Long userId = 1L;
 
         mockMvc.perform(get("/bookings/{id}", bookingId)
                 .header("X-Sharer-User-Id", String.valueOf(userId)))
@@ -55,7 +55,7 @@ public class BookingControllerTest {
 
     @Test
     void testGetAllUserBookings() throws Exception {
-        long userId = 1L;
+        Long userId = 1L;
         String state = "ALL";
         Integer from = 0;
         Integer size = 10;
@@ -83,7 +83,7 @@ public class BookingControllerTest {
 
     @Test
     void testGetAllOwnerBookings() throws Exception {
-        long userId = 1L;
+        Long userId = 1L;
         String state = "ALL";
         Integer from = 0;
         Integer size = 10;
@@ -113,7 +113,7 @@ public class BookingControllerTest {
         ReceivedBookingDto receivedBookingDtoTest = new ReceivedBookingDto();
         SentBookingDto sentBookingDto = new SentBookingDto();
 
-        long userId = 1L;
+        Long userId = 1L;
 
         when(bookingService.createBooking(receivedBookingDtoTest, userId)).thenReturn(sentBookingDto);
 
@@ -134,9 +134,9 @@ public class BookingControllerTest {
     @SneakyThrows
     @Test
     void updateBookingStatus() {
-        long bookingId = 1L;
+        Long bookingId = 1L;
         String approved = "true";
-        long userId = 2L;
+        Long userId = 2L;
         SentBookingDto sentBookingDto = new SentBookingDto();
 
         when(bookingService.updateBookingStatus(bookingId, approved, userId)).thenReturn(sentBookingDto);

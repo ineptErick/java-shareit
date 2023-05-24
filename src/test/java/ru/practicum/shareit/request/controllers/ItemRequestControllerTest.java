@@ -41,7 +41,7 @@ public class ItemRequestControllerTest {
 
     @Test
     public void testCreateRequest() throws Exception {
-        long userId = 1L;
+        Long userId = 1L;
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setDescription("Request Name");
 
@@ -61,7 +61,7 @@ public class ItemRequestControllerTest {
     public void testGetOwnerRequests() throws Exception {
         int from = 0;
         int size = 2;
-        long ownerId = 1L;
+        Long ownerId = 1L;
         ItemRequestDto requestDto1 = new ItemRequestDto();
         requestDto1.setId(1L);
         requestDto1.setDescription("Request 1");
@@ -89,7 +89,7 @@ public class ItemRequestControllerTest {
 
     @Test
     public void testGetUserRequests() throws Exception {
-        long userId = 1L;
+        Long userId = 1L;
         int from = 0;
         int size = 2;
         ItemRequestDto requestDto1 = new ItemRequestDto();
@@ -119,8 +119,8 @@ public class ItemRequestControllerTest {
 
     @Test
     public void testGetRequestByIdSuccess() throws Exception {
-        long requestId = 1L;
-        long userId = 2L;
+        Long requestId = 1L;
+        Long userId = 2L;
 
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setId(requestId);
@@ -135,8 +135,8 @@ public class ItemRequestControllerTest {
 
     @Test
     public void testGetRequestByIdNotFound() throws Exception {
-        long requestId = 1L;
-        long userId = 2L;
+        Long requestId = 1L;
+        Long userId = 2L;
 
         when(requestService.getRequestById(requestId, userId)).thenThrow(new EntityNotFoundException("Entity not found"));
 

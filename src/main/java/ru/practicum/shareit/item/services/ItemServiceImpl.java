@@ -57,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public ItemReplyDto getItemDtoById(long itemId, long userId) {
+    public ItemReplyDto getItemDtoById(Long itemId, Long userId) {
         LocalDateTime dateNow = LocalDateTime.now();
         Item item = getItemById(itemId);
         ItemReplyDto dto = convertItemToDto(item);
@@ -70,14 +70,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getItemById(long itemId) {
+    public Item getItemById(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found: " + itemId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemReplyDto> getItems(long ownerId, Integer from, Integer size) {
+    public List<ItemReplyDto> getItems(Long ownerId, Integer from, Integer size) {
         List<Item> items = getItemsPage(ownerId, from, size);
         List<ItemReplyDto> itemsDto = itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.ASC, "id")).stream()
                 .map(this::convertItemToDto)
@@ -88,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemReplyDto createItem(ItemCreationDto itemCreationDto, long userId) {
+    public ItemReplyDto createItem(ItemCreationDto itemCreationDto, Long userId) {
         userService.isExistUser(userId);
         Item item = convertDtoToItem(itemCreationDto);
         item.setOwner(userId);
@@ -97,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto createComment(CommentRequestDto commentDto, long itemId, long userId) {
+    public CommentDto createComment(CommentRequestDto commentDto, Long itemId, Long userId) {
         isValidComment(commentDto, itemId, userId);
         Comment comment = new Comment();
         setCommentField(comment, commentDto, itemId, userId);
@@ -106,7 +106,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemReplyDto updateItem(ItemCreationDto itemCreationDto, long itemId, long userId) {
+    public ItemReplyDto updateItem(ItemCreationDto itemCreationDto, Long itemId, Long userId) {
         isExistItem(itemId);
         Item item = itemRepository.findById(itemId).get();
 
@@ -120,7 +120,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public void deleteItem(long userId) {
+    public void deleteItem(Long userId) {
         itemRepository.deleteById(userId);
     }
 
@@ -134,21 +134,21 @@ public class ItemServiceImpl implements ItemService {
                 .collect(toList());
     }
 
-    private void isValidComment(CommentRequestDto commentDto, long itemId, long userId) {
+    private void isValidComment(CommentRequestDto commentDto, Long itemId, Long userId) {
         if (!bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(userId, itemId,
                 BookingStatus.APPROVED, LocalDateTime.now())) {
             throw new BadRequestException("User " + userId + "doesnt use this item " + itemId);
         }
     }
 
-    private void setCommentField(Comment comment, CommentDto commentDto, long itemId, long userId) {
+    private void setCommentField(Comment comment, CommentDto commentDto, Long itemId, Long userId) {
         comment.setText(commentDto.getText());
         comment.setAuthorName(userService.getUserById(userId).getName());
         comment.setItem(getItemById(itemId));
         comment.setCreated(LocalDateTime.now());
     }
 
-    private void setCommentField(Comment comment, CommentRequestDto commentDto, long itemId, long userId) {
+    private void setCommentField(Comment comment, CommentRequestDto commentDto, Long itemId, Long userId) {
         comment.setText(commentDto.getText());
         comment.setAuthorName(userService.getUserById(userId).getName());
         comment.setItem(getItemById(itemId));
@@ -180,13 +180,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
 
-    public void isExistItem(long itemId) {
+    public void isExistItem(Long itemId) {
         if (!itemRepository.existsById(itemId)) {
             throw new EntityNotFoundException("Item not found:" + itemId);
         }
     }
 
-    private List<Item> getItemsPage(long ownerId, Integer from, Integer size) {
+    private List<Item> getItemsPage(Long ownerId, Integer from, Integer size) {
         if (from == null && size == null) {
             return itemRepository.findAllByOwner(ownerId,Sort.by(Sort.Direction.ASC, "id"));
         } else {

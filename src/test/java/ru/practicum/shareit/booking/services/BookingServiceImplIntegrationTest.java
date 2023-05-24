@@ -74,8 +74,8 @@ public class BookingServiceImplIntegrationTest {
 
     @Test
     public void getBooking_withInvalidBookingId_throwsEntityNotFoundException() {
-        long invalidBookingId = 1L;
-        long validUserId = 2L;
+        Long invalidBookingId = 1L;
+        Long validUserId = 2L;
 
         assertThrows(EntityNotFoundException.class, () -> bookingService.getBooking(invalidBookingId, validUserId));
     }
@@ -105,7 +105,7 @@ public class BookingServiceImplIntegrationTest {
         booking.setStart(LocalDateTime.now().plusHours(1));
         booking.setEnd(LocalDateTime.now().plusHours(3));
         bookingRepository.save(booking);
-        long invalidUserId = 3000L;
+        Long invalidUserId = 3000L;
 
         assertThrows(InappropriateUserException.class, () -> bookingService.getBooking(booking.getId(), invalidUserId));
     }
@@ -184,7 +184,7 @@ public class BookingServiceImplIntegrationTest {
 
     @Test
     void updateBookingStatus_WithInvalidBookingId_ShouldThrowEntityNotFoundException() {
-        long invalidBookingId = 100L;
+        Long invalidBookingId = 100L;
         String newStatus = BookingStatus.APPROVED.toString().toLowerCase();
 
         assertThrows(EntityNotFoundException.class, () -> bookingService.updateBookingStatus(invalidBookingId, newStatus, 1L));

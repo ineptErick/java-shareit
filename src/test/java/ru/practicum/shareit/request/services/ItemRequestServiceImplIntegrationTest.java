@@ -78,7 +78,7 @@ class ItemRequestServiceImplIntegrationTest {
 
     @Test
     void getRequestById_InvalidId_ThrowsEntityNotFound() {
-        long invalidId = 100L;
+        Long invalidId = 100L;
         User user = new User();
         user.setName("John");
         user.setEmail("johndoe@example.com");
@@ -89,8 +89,8 @@ class ItemRequestServiceImplIntegrationTest {
 
     @Test
     void getRequestById_InvalidUserId_ThrowsEntityNotFound() {
-        long requestId = 1L;
-        long invalidUserId = 100L;
+        Long requestId = 1L;
+        Long invalidUserId = 100L;
         User user = new User();
         user.setName("John");
         user.setEmail("johndoe@example.com");
@@ -141,7 +141,7 @@ class ItemRequestServiceImplIntegrationTest {
 
     @Test
     void getOwnerRequests_withInvalidOwnerId_shouldThrowEntityNotFound() {
-        long ownerId = 1L;
+        Long ownerId = 1L;
         ItemRequest request1 = new ItemRequest();
         request1.setId(1L);
         request1.setOwner(ownerId);

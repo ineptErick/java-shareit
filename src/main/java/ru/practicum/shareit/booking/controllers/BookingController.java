@@ -21,13 +21,13 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping("/{bookingId}")
-    public SentBookingDto getBooking(@PathVariable long bookingId,
-                                     @RequestHeader(value = USER_ID) long userId) {
+    public SentBookingDto getBooking(@PathVariable Long bookingId,
+                                     @RequestHeader(value = USER_ID) Long userId) {
         return bookingService.getBooking(bookingId, userId);
     }
 
     @GetMapping()
-    public List<SentBookingDto> getAllUserBookings(@RequestHeader(value = USER_ID) long userId,
+    public List<SentBookingDto> getAllUserBookings(@RequestHeader(value = USER_ID) Long userId,
                                                    @RequestParam(name = "from", required = false) Integer from,
                                                    @RequestParam(name = "size", required = false) Integer size,
                                                    @RequestParam(name = "state", defaultValue = "ALL")
@@ -36,7 +36,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<SentBookingDto> getAllOwnerBookings(@RequestHeader(value = USER_ID) long userId,
+    public List<SentBookingDto> getAllOwnerBookings(@RequestHeader(value = USER_ID) Long userId,
                                                     @RequestParam(name = "from", required = false) Integer from,
                                                     @RequestParam(name = "size", required = false) Integer size,
                                                     @RequestParam(name = "state",
@@ -47,14 +47,14 @@ public class BookingController {
     @PostMapping()
     public SentBookingDto createBooking(@Validated(Create.class)
                                         @RequestBody ReceivedBookingDto bookingDto,
-                                        @RequestHeader(value = USER_ID) long userId) {
+                                        @RequestHeader(value = USER_ID) Long userId) {
         return bookingService.createBooking(bookingDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
-    public SentBookingDto updateBookingStatus(@PathVariable long bookingId,
+    public SentBookingDto updateBookingStatus(@PathVariable Long bookingId,
                                               @RequestParam(name = "approved") String approved,
-                                              @RequestHeader(value = USER_ID) long userId) {
+                                              @RequestHeader(value = USER_ID) Long userId) {
         return bookingService.updateBookingStatus(bookingId, approved.toLowerCase(), userId);
     }
 }

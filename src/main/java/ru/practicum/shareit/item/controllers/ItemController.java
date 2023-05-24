@@ -23,13 +23,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemReplyDto getItemById(@PathVariable long itemId,
-                                    @RequestHeader(value = USER_ID) long userId) {
+    public ItemReplyDto getItemById(@PathVariable Long itemId,
+                                    @RequestHeader(value = USER_ID) Long userId) {
         return itemService.getItemDtoById(itemId, userId);
     }
 
     @GetMapping()
-    public List<ItemReplyDto> getItems(@RequestHeader(value = USER_ID) long userId,
+    public List<ItemReplyDto> getItems(@RequestHeader(value = USER_ID) Long userId,
                                        @RequestParam(name = "from", required = false) Integer from,
                                        @RequestParam(name = "size", required = false) Integer size) {
         return itemService.getItems(userId, from, size);
@@ -41,7 +41,7 @@ public class ItemController {
     }
 
     @PostMapping()
-    public ItemReplyDto createItem(@RequestHeader(value = USER_ID) long userId,
+    public ItemReplyDto createItem(@RequestHeader(value = USER_ID) Long userId,
                                    @Valid @RequestBody ItemCreationDto itemCreationDto) {
         return itemService.createItem(itemCreationDto, userId);
     }
@@ -50,20 +50,20 @@ public class ItemController {
     public CommentDto createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
                                     // Здесь в качестве параметра метода соответственно будет использоваться CommentRequestDto
                                     // - done
-                                    @PathVariable long itemId,
-                                    @RequestHeader(value = USER_ID) long userId) {
+                                    @PathVariable Long itemId,
+                                    @RequestHeader(value = USER_ID) Long userId) {
         return itemService.createComment(commentRequestDto, itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemReplyDto updateItem(@PathVariable long itemId,
+    public ItemReplyDto updateItem(@PathVariable Long itemId,
                                    @RequestBody ItemCreationDto itemCreationDto,
-                                   @RequestHeader(value = USER_ID) long userId) {
+                                   @RequestHeader(value = USER_ID) Long userId) {
         return itemService.updateItem(itemCreationDto, itemId, userId);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteItem(@PathVariable long id) {
+    public void deleteItem(@PathVariable Long id) {
         itemService.deleteItem(id);
     }
 

@@ -38,8 +38,8 @@ public class ItemControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final long USER_ID = 1;
-    private static final long ITEM_ID = 2;
+    private static final Long USER_ID = 1;
+    private static final Long ITEM_ID = 2;
 
     @Test
     public void testGetItemById() throws Exception {
