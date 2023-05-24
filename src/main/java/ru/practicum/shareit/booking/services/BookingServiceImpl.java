@@ -123,7 +123,8 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookingsSlice.toList();
     }
-    private Slice<Booking> getBookingSlice(Long userId, String state, String userType, PageRequest pageRequest) {
+
+    private Slice<Booking> getBookingSlice(long userId, String state, String userType, PageRequest pageRequest) {
         return userType.equals(USER)
                 ? bookingRepository.findAllUserBookingsByState(userId, state, pageRequest)
                 : bookingRepository.findAllOwnerBookingsByState(userId, state, pageRequest);
