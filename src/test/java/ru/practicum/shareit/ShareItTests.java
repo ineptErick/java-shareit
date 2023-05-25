@@ -8,7 +8,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("coverage")
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@SpringBootTest
 class ShareItTests {
 
 }
