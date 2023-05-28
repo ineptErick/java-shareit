@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.controllers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.SentBookingDto;
@@ -11,14 +10,16 @@ import ru.practicum.shareit.user.dto.Create;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/bookings")
-@Slf4j
-@Validated
 public class BookingController {
     private static final String USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
+
+    // @Autowired
+    public BookingController(BookingService bookingService) {
+       this.bookingService = bookingService;
+    }
 
     @GetMapping("/{bookingId}")
     public SentBookingDto getBooking(@PathVariable Long bookingId,
