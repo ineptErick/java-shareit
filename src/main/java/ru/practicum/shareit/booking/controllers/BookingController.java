@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.controllers;
 
-// import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.SentBookingDto;
@@ -16,7 +16,7 @@ public class BookingController {
     private static final String USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
 
-    // @Autowired
+    @Autowired
     public BookingController(BookingService bookingService) {
        this.bookingService = bookingService;
     }
