@@ -18,7 +18,7 @@ public class BookingController {
 
     @Autowired
     public BookingController(BookingService bookingService) {
-       this.bookingService = bookingService;
+        this.bookingService = bookingService;
     }
 
     @GetMapping("/{bookingId}")
@@ -32,7 +32,7 @@ public class BookingController {
                                                    @RequestParam(name = "from", required = false) Integer from,
                                                    @RequestParam(name = "size", required = false) Integer size,
                                                    @RequestParam(name = "state", defaultValue = "ALL")
-                                                       String state) {
+                                                   String state) {
         return bookingService.getAllUserBookings(userId, state, "USER", from, size);
     }
 

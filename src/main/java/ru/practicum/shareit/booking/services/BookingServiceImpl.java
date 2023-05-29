@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
     private final ModelMapper mapper;
     private static final String USER = "USER";
 
-     @Autowired
+    @Autowired
     public BookingServiceImpl(BookingRepository bookingRepository,
                               ItemService itemService, UserService userService,
                               ModelMapper mapper) {
