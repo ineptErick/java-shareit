@@ -33,7 +33,7 @@ class BookingRepositoryTest {
     private ItemRepository itemRepository;
 
     @Test
-    void testFindAllUserBookingsByState() {
+    public void testFindAllUserBookingsByState() {
         // Пропущены модификаторы доступа у всех методов этого класса.
 
         User user = new User();
@@ -85,7 +85,7 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllOwnerBookingsByState() {
+    public void testFindAllOwnerBookingsByState() {
         User user = new User();
         user.setName("John Doe");
         user.setEmail("johndoe@example.com");
@@ -145,7 +145,7 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllUserBookingsByStateWithPagination() {
+    public void testFindAllUserBookingsByStateWithPagination() {
         User user = new User();
         user.setName("John Doe");
         user.setEmail("johndoe@example.com");
@@ -228,7 +228,6 @@ class BookingRepositoryTest {
         b3.setStatus(BookingStatus.APPROVED);
         b3.setItem(item);
         bookingRepository.save(b3);
-
 
         int pageSize = 2;
         int pageNumber = 0;
@@ -419,5 +418,61 @@ class BookingRepositoryTest {
 
         assertEquals(actualBookingDate.size(), 1);
         assertEquals(actualBookingDate.get(0).getBookerId(), b2.getBooker().getId());
+    }
+
+    @Test
+    public void testExistsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore_shouldReturnTrue() {
+        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
+
+        User user = new User();
+        user.setName("John Doe");
+        user.setEmail("johndoe@example.com");
+        userRepository.save(user);
+
+        Item item = new Item();
+        item.setOwner(4L);
+        item.setAvailable(true);
+        itemRepository.save(item);
+
+        Booking booking = new Booking();
+        booking.setBooker(user);
+        booking.setItem(item);
+        booking.setStatus(BookingStatus.APPROVED);
+        booking.setStart(startDate);
+        bookingRepository.save(booking);
+
+        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(user.getId(), item.getId(), BookingStatus.APPROVED, LocalDateTime.now());
+
+        assertTrue(exists);
+    }
+
+    @Test
+    public void testExistsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore_shouldReturnFalse() {
+        long userId = 1L;
+        long itemId = 2L;
+        LocalDateTime startDate = LocalDateTime.now().plusDays(1);
+        BookingStatus status = BookingStatus.APPROVED;
+        User user = new User();
+        user.setName("John Doe");
+        user.setEmail("johndoe@example.com");
+        userRepository.save(user);
+        User owner = new User();
+        owner.setName("owner");
+        owner.setEmail("owner@example.com");
+        owner = userRepository.save(owner);
+        Item item = new Item();
+        item.setOwner(owner.getId());
+        item.setAvailable(true);
+        itemRepository.save(item);
+        Booking booking = new Booking();
+        booking.setBooker(user);
+        booking.setItem(item);
+        booking.setStatus(status);
+        booking.setStart(startDate);
+        bookingRepository.save(booking);
+
+        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(userId, itemId, status, LocalDateTime.now());
+
+        assertFalse(exists);
     }
 }

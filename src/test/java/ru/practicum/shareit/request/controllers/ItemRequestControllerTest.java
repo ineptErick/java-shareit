@@ -30,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith({SpringExtension.class})
 @WebMvcTest(controllers = ItemRequestController.class)
 public class ItemRequestControllerTest {
+    private static final String USER_ID = "X-Sharer-User-Id";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -41,14 +43,14 @@ public class ItemRequestControllerTest {
 
     @Test
     public void testCreateRequest() throws Exception {
-        Long userId = 1L;
+        long userId = 1L;
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setDescription("Request Name");
 
         when(requestService.createRequest(requestDto, userId)).thenReturn(requestDto);
 
         mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID, userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
@@ -61,7 +63,7 @@ public class ItemRequestControllerTest {
     public void testGetOwnerRequests() throws Exception {
         int from = 0;
         int size = 2;
-        Long ownerId = 1L;
+        long ownerId = 1L;
         ItemRequestDto requestDto1 = new ItemRequestDto();
         requestDto1.setId(1L);
         requestDto1.setDescription("Request 1");
@@ -75,7 +77,7 @@ public class ItemRequestControllerTest {
         when(requestService.getOwnerRequests(ownerId)).thenReturn(requestList);
 
         MvcResult mvcResult = mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID, ownerId)
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size)))
                 .andReturn();
@@ -89,7 +91,7 @@ public class ItemRequestControllerTest {
 
     @Test
     public void testGetUserRequests() throws Exception {
-        Long userId = 1L;
+        long userId = 1L;
         int from = 0;
         int size = 2;
         ItemRequestDto requestDto1 = new ItemRequestDto();
@@ -105,7 +107,7 @@ public class ItemRequestControllerTest {
         when(requestService.getUserRequests(userId, from, size)).thenReturn(requestList);
 
         MvcResult mvcResult = mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID, userId)
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size)))
                 .andReturn();
@@ -119,8 +121,8 @@ public class ItemRequestControllerTest {
 
     @Test
     public void testGetRequestByIdSuccess() throws Exception {
-        Long requestId = 1L;
-        Long userId = 2L;
+        long requestId = 1L;
+        long userId = 2L;
 
         ItemRequestDto requestDto = new ItemRequestDto();
         requestDto.setId(requestId);
@@ -128,20 +130,20 @@ public class ItemRequestControllerTest {
         when(requestService.getRequestById(requestId, userId)).thenReturn(requestDto);
 
         mockMvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID, userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(requestId)));
+                .andExpect(jsonPath("$.id", is((int) requestId)));
     }
 
     @Test
     public void testGetRequestByIdNotFound() throws Exception {
-        Long requestId = 1L;
-        Long userId = 2L;
+        long requestId = 1L;
+        long userId = 2L;
 
         when(requestService.getRequestById(requestId, userId)).thenThrow(new EntityNotFoundException("Entity not found"));
 
         mockMvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID, userId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", is("Entity not found")));
     }

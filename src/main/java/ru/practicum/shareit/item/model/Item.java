@@ -3,14 +3,15 @@ package ru.practicum.shareit.item.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Setter
+@ToString()
 @Entity
 @Table(name = "items")
 @NoArgsConstructor
@@ -52,9 +53,5 @@ public class Item {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, available, owner);
-    }
-
-    public Set<Comment> getComments() {
-        return new HashSet<>();
     }
 }

@@ -43,7 +43,7 @@ public class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void createUser_ShouldThrowException_WhenEmailAlreadyExists() {
+    public void createUser_ShouldThrowException_WhenEmailAlreadyExists() {
         String existingEmail = "test@example.com";
         UserDto existingUser = new UserDto();
         existingUser.setName("test1");
@@ -131,5 +131,67 @@ public class UserServiceImplIntegrationTest {
         userDto.setEmail(user2.getEmail());
 
         assertThrows(AlreadyUsedEmailException.class, () -> userService.updateUser(userDto, savedUser.getId()));
+    }
+
+    @Test
+    public void testDeleteUser() {
+        User user = new User();
+        user.setName("test1");
+        user.setEmail("test1@example.com");
+        User savedUser = userRepository.save(user);
+
+        userService.deleteUser(savedUser.getId());
+    }
+
+    @Test
+    public void testGetUserDtoById_Success() {
+        User user = new User();
+        user.setName("test1");
+        user.setEmail("test1@example.com");
+        User savedUser = userRepository.save(user);
+
+        UserDto userFromDb = userService.getUserDtoById(savedUser.getId());
+        assertEquals(userFromDb.getEmail(), user.getEmail());
+    }
+
+    @Test
+    public void testGetUserDtoById_shouldTrowException() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("test1");
+        user.setEmail("test1@example.com");
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getUserDtoById(user.getId()));
+    }
+
+    @Test
+    public void testisExistUser_shouldTrowException() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("test1");
+        user.setEmail("test1@example.com");
+
+        assertThrows(EntityNotFoundException.class, () -> userService.isExistUser(user.getId()));
+    }
+
+    @Test
+    public void testGetUserById_shouldTrowException() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("test1");
+        user.setEmail("test1@example.com");
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getUserById(user.getId()));
+    }
+
+    @Test
+    public void testGetUserById_Success() {
+        User user = new User();
+        user.setName("test1");
+        user.setEmail("test1@example.com");
+        User savedUser = userRepository.save(user);
+
+        User userFromDb = userService.getUserById(savedUser.getId());
+        assertEquals(userFromDb.getEmail(), user.getEmail());
     }
 }

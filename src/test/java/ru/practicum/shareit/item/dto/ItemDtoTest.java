@@ -42,7 +42,7 @@ public class ItemDtoTest {
         expectedDto.setName("Test User");
 
         ItemReplyDto dto = json.parse(jsonInput).getObject();
-
+// ItemDtoTest.testDeserializeDto:46
         assertThat(dto).isEqualTo(expectedDto);
     }
 

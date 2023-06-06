@@ -32,30 +32,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = BookingController.class)
 public class BookingControllerTest {
 
+    private static final String USER_ID = "X-Sharer-User-Id";
+
     @MockBean
     private BookingService bookingService;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule()).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
 
     @SneakyThrows
     @Test
-    void getBooking() {
-        Long bookingId = 1L;
-        Long userId = 1L;
+    public void getBooking() {
+        long bookingId = 1L;
+        long userId = 1L;
 
         mockMvc.perform(get("/bookings/{id}", bookingId)
-                .header("X-Sharer-User-Id", String.valueOf(userId)))
-                // header используете один и тот же в каждом тесте - нужна константа
+                        .header(USER_ID, String.valueOf(userId)))
                 .andExpect(status().isOk());
 
         verify(bookingService).getBooking(bookingId, userId);
     }
 
     @Test
-    void testGetAllUserBookings() throws Exception {
-        Long userId = 1L;
+    public void testGetAllUserBookings() throws Exception {
+        long userId = 1L;
         String state = "ALL";
         Integer from = 0;
         Integer size = 10;
@@ -65,7 +67,7 @@ public class BookingControllerTest {
                 .thenReturn(sentBookingDtoList);
 
         MvcResult mvcResult = mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID, 1L)
                         .param("from", from.toString())
                         .param("size", size.toString())
                         .param("state", "ALL")
@@ -82,8 +84,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testGetAllOwnerBookings() throws Exception {
-        Long userId = 1L;
+    public void testGetAllOwnerBookings() throws Exception {
+        long userId = 1L;
         String state = "ALL";
         Integer from = 0;
         Integer size = 10;
@@ -92,7 +94,7 @@ public class BookingControllerTest {
         when(bookingService.getAllUserBookings(eq(userId), eq(state), eq("OWNER"), eq(from), eq(size))).thenReturn(bookings);
 
         MvcResult mvcResult = mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID, userId)
                         .param("from", from.toString())
                         .param("size", size.toString())
                         .param("state", state)
@@ -109,18 +111,18 @@ public class BookingControllerTest {
     }
 
     @Test
-    void createBooking() throws Exception {
+    public void createBooking() throws Exception {
         ReceivedBookingDto receivedBookingDtoTest = new ReceivedBookingDto();
         SentBookingDto sentBookingDto = new SentBookingDto();
 
-        Long userId = 1L;
+        long userId = 1L;
 
         when(bookingService.createBooking(receivedBookingDtoTest, userId)).thenReturn(sentBookingDto);
 
         MvcResult mvcResult = mockMvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", String.valueOf(userId))
+                        .header(USER_ID, String.valueOf(userId))
                         .content(objectMapper.writeValueAsString(receivedBookingDtoTest)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -133,17 +135,17 @@ public class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void updateBookingStatus() {
-        Long bookingId = 1L;
+    public void updateBookingStatus() {
+        long bookingId = 1L;
         String approved = "true";
-        Long userId = 2L;
+        long userId = 2L;
         SentBookingDto sentBookingDto = new SentBookingDto();
 
         when(bookingService.updateBookingStatus(bookingId, approved, userId)).thenReturn(sentBookingDto);
 
         MvcResult mvcResult = mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .param("approved", approved)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID, userId))
                 .andExpect(status().isOk())
                 .andReturn();
 

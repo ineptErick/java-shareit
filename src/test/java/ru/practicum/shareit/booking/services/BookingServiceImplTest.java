@@ -2,69 +2,70 @@ package ru.practicum.shareit.booking.services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.shareit.booking.dto.ReceivedBookingDto;
 import ru.practicum.shareit.booking.dto.SentBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
-import ru.practicum.shareit.exceptions.BadRequestException;
-import ru.practicum.shareit.exceptions.EntityNotFoundException;
-import ru.practicum.shareit.exceptions.InappropriateUserException;
-import ru.practicum.shareit.exceptions.UnsupportedStatusException;
+import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.services.ItemService;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.booking.dto.SentBookingDto.Item;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.services.UserService;
+import ru.practicum.shareit.util.BookingStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class})
-@WebMvcTest(controllers = BookingServiceImpl.class)
 public class BookingServiceImplTest {
-
     @Mock
     private BookingRepository bookingRepository;
-
+    @Mock
+    private ModelMapper modelMapper;
     @Mock
     private ItemService itemService;
+    @Mock
+    private UserService userService;
 
-    @MockBean
-    private BookingService bookingService;
+    @InjectMocks
+    private BookingServiceImpl bookingService;
 
-    private static final Long BOOKING_ID = 1L;
-    private static final Long USER_ID = 2L;
+    private static final long BOOKING_ID = 1L;
+    private static final long USER_ID = 2L;
 
     @Test
-    public void testGetBookingReturnsBookingDtoWhenUserIsAuthorized() {
-        SentBookingDto.Booker booker = new SentBookingDto.Booker();
-        booker.setId(USER_ID);
-        User owner = new User();
-        owner.setId(3L);
-        SentBookingDto.Item item = new  SentBookingDto.Item();
-        item.setOwner(3L);
-        SentBookingDto booking = new SentBookingDto();
-        booking.setBooker(booker);
-        booking.setItem(item);
+    public void testGetBookingReturnsBookingDto_success() {
+        SentBookingDto.Booker user = new SentBookingDto.Booker();
+        user.setId(USER_ID);
+        Booking booking = new Booking();
         booking.setId(BOOKING_ID);
-        when(bookingService.getBooking(BOOKING_ID, USER_ID)).thenReturn(booking);
+        booking.setBooker(user);
+        SentBookingDto bookingDto = new SentBookingDto();
+        bookingDto.setId(BOOKING_ID);
+        bookingDto.setBooker(user);
+
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
+        when(modelMapper.map(booking, SentBookingDto.class)).thenReturn(bookingDto);
 
         SentBookingDto result = bookingService.getBooking(BOOKING_ID, USER_ID);
 
         assertNotNull(result);
-        assertEquals(BOOKING_ID, result.getId());
     }
 
     @Test()
-    public void testGetBookingThrowsEntityNotFoundWhenBookingIsNotFound() {
-        when(bookingService.getBooking(BOOKING_ID, USER_ID)).thenThrow(new EntityNotFoundException("Booking not found"));
-
-        assertThrows(EntityNotFoundException.class, () -> bookingService.getBooking(BOOKING_ID, USER_ID));
+    public void testGetBookingThrowsEntityNotFoundWhenEntityNotFound() {
+        long invalidId = -1;
+        assertThrows(EntityNotFoundException.class, () -> bookingService.getBooking(invalidId, USER_ID));
     }
 
     @Test
@@ -79,28 +80,239 @@ public class BookingServiceImplTest {
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setId(BOOKING_ID);
-        when(bookingService.getBooking(BOOKING_ID, USER_ID)).thenThrow(new InappropriateUserException("Inappropriate user"));
+
+        when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
 
         assertThrows(InappropriateUserException.class, () -> bookingService.getBooking(BOOKING_ID, USER_ID));
-
     }
 
     @Test
     public void testGetAllUserBookingsUnknownState() {
-        Long userId = 1L;
+        long userId = 1L;
         String state = "INVALID";
-        String userType = "BOOKER";
+        String userType = "USER";
         Integer from = 0;
         Integer size = 10;
-
-        when(bookingService.getAllUserBookings(userId, state, userType, from, size))
-                .thenThrow(new UnsupportedStatusException("Unsupported Status"));
 
         assertThrows(UnsupportedStatusException.class, () -> bookingService.getAllUserBookings(userId, state, userType, from, size));
     }
 
     @Test
-    public void testCreateBooking_BadRequest() {
+    public void testGetAllUserBookings_shouldThrowEntityNotFound() {
+        long invalidUserId = 100L;
+        String state = "ALL";
+        String userType = "USER";
+        Integer from = 0;
+        Integer size = 10;
+
+        doThrow(new EntityNotFoundException("User not found")).when(userService).isExistUser(invalidUserId);
+
+        assertThrows(EntityNotFoundException.class, () -> bookingService.getAllUserBookings(invalidUserId, state, userType, from, size));
+    }
+
+    @Test
+    public void testGetAllUserBookings_withPagination_shouldThrowBadRequest() {
+        long invalidUserId = 100L;
+        String state = "ALL";
+        String userType = "USER";
+        Integer from = 0;
+        Integer size = 0;
+
+        doNothing().when(userService).isExistUser(invalidUserId);
+
+        assertThrows(BadRequestException.class, () -> bookingService.getAllUserBookings(invalidUserId, state, userType, from, size));
+    }
+
+    @Test
+    public void testGetAllUserBookings_noPagination_success() {
+        long userId = 1L;
+        Integer from = null;
+        Integer size = null;
+        String state = "ALL";
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = new ArrayList<>();
+        Booking b1 = new Booking();
+        b1.setStart(now.minusHours(2));
+        b1.setEnd(now.minusHours(1));
+        b1.setStatus(BookingStatus.WAITING);
+        bookings.add(b1);
+
+        Booking b2 = new Booking();
+        b2.setStart(now.plusHours(1));
+        b2.setEnd(now.plusHours(3));
+        b2.setStatus(BookingStatus.APPROVED);
+        bookings.add(b2);
+
+        when(bookingRepository.findAllUserBookingsByState(userId, state)).thenReturn(bookings);
+
+        List<SentBookingDto> result = bookingService.getAllUserBookings(userId, state, "USER", from, size);
+
+        assertEquals(2, result.size());
+        verify(bookingRepository, times(1)).findAllUserBookingsByState(userId, state);
+    }
+
+    @Test
+    public void testGetAllOwnerBookings_noPagination_success() {
+        long userId = 1L;
+        Integer from = null;
+        Integer size = null;
+        String state = "ALL";
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = new ArrayList<>();
+        Booking b1 = new Booking();
+        b1.setStart(now.minusHours(2));
+        b1.setEnd(now.minusHours(1));
+        b1.setStatus(BookingStatus.WAITING);
+        bookings.add(b1);
+
+        Booking b2 = new Booking();
+        b2.setStart(now.plusHours(1));
+        b2.setEnd(now.plusHours(3));
+        b2.setStatus(BookingStatus.APPROVED);
+        bookings.add(b2);
+
+        when(bookingRepository.findAllOwnerBookingsByState(userId, state)).thenReturn(bookings);
+
+        List<SentBookingDto> result = bookingService.getAllUserBookings(userId, state, "OWNER", from, size);
+
+        assertEquals(2, result.size());
+        verify(bookingRepository, times(1)).findAllOwnerBookingsByState(userId, state);
+    }
+
+    @Test
+    public void testGetAllUserBookings_withPagination_success() {
+        long userId = 1L;
+        int from = 0;
+        int size = 1;
+        String state = "ALL";
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = new ArrayList<>();
+        Booking b1 = new Booking();
+        b1.setStart(now.minusHours(2));
+        b1.setEnd(now.minusHours(1));
+        b1.setStatus(BookingStatus.WAITING);
+        bookings.add(b1);
+
+        Booking b2 = new Booking();
+        b2.setStart(now.plusHours(1));
+        b2.setEnd(now.plusHours(3));
+        b2.setStatus(BookingStatus.APPROVED);
+        bookings.add(b2);
+
+        Slice<Booking> requestPage = new PageImpl<>(bookings);
+        when(bookingRepository.findAllUserBookingsByState(userId, state,
+                PageRequest.of(from, size))).thenReturn(requestPage);
+
+        List<SentBookingDto> result = bookingService.getAllUserBookings(userId, state, "USER", from, size);
+
+        assertEquals(2, result.size());
+        verify(bookingRepository, times(1)).findAllUserBookingsByState(userId, state,
+                PageRequest.of(from, size));
+    }
+
+    @Test
+    public void testGetAllOwnerBookings_withPagination_success() {
+        long userId = 1L;
+        int from = 0;
+        int size = 1;
+        String state = "ALL";
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = new ArrayList<>();
+        Booking b1 = new Booking();
+        b1.setStart(now.minusHours(2));
+        b1.setEnd(now.minusHours(1));
+        b1.setStatus(BookingStatus.WAITING);
+        bookings.add(b1);
+
+        Booking b2 = new Booking();
+        b2.setStart(now.plusHours(1));
+        b2.setEnd(now.plusHours(3));
+        b2.setStatus(BookingStatus.APPROVED);
+        bookings.add(b2);
+
+        Slice<Booking> requestPage = new PageImpl<>(bookings);
+        when(bookingRepository.findAllOwnerBookingsByState(userId, state,
+                PageRequest.of(from, size))).thenReturn(requestPage);
+
+        List<SentBookingDto> result = bookingService.getAllUserBookings(userId, state, "OWNER", from, size);
+
+        assertEquals(2, result.size());
+        verify(bookingRepository, times(1)).findAllOwnerBookingsByState(userId, state,
+                PageRequest.of(from, size));
+    }
+
+    @Test
+    public void testGetAllPastOwnerBookings_withPagination_success() {
+        long userId = 1L;
+        int from = 0;
+        int size = 1;
+        String state = "PAST";
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = new ArrayList<>();
+        Booking b1 = new Booking();
+        b1.setStart(now.minusHours(2));
+        b1.setEnd(now.minusHours(1));
+        b1.setStatus(BookingStatus.WAITING);
+        bookings.add(b1);
+
+        Booking b2 = new Booking();
+        b2.setStart(now.plusHours(1));
+        b2.setEnd(now.plusHours(3));
+        b2.setStatus(BookingStatus.APPROVED);
+        bookings.add(b2);
+
+
+        Slice<Booking> requestPage = new PageImpl<>(List.of(b1));
+        when(bookingRepository.findAllOwnerBookingsByState(userId, state,
+                PageRequest.of(from, size))).thenReturn(requestPage);
+
+        List<SentBookingDto> result = bookingService.getAllUserBookings(userId, state, "OWNER", from, size);
+
+        assertEquals(1, result.size());
+        verify(bookingRepository, times(1)).findAllOwnerBookingsByState(userId, state,
+                PageRequest.of(from, size));
+    }
+
+    @Test
+    public void testGetAllFutureOwnerBookings_withPagination_success() {
+        long userId = 1L;
+        int from = 0;
+        int size = 1;
+        String state = "FUTURE";
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = new ArrayList<>();
+        Booking b1 = new Booking();
+        b1.setStart(now.minusHours(2));
+        b1.setEnd(now.minusHours(1));
+        b1.setStatus(BookingStatus.WAITING);
+        bookings.add(b1);
+
+        Booking b2 = new Booking();
+        b2.setStart(now.plusHours(1));
+        b2.setEnd(now.plusHours(3));
+        b2.setStatus(BookingStatus.APPROVED);
+        bookings.add(b2);
+
+
+        Slice<Booking> requestPage = new PageImpl<>(List.of(b2));
+        when(bookingRepository.findAllOwnerBookingsByState(userId, state,
+                PageRequest.of(from, size))).thenReturn(requestPage);
+
+        List<SentBookingDto> result = bookingService.getAllUserBookings(userId, state, "OWNER", from, size);
+
+        assertEquals(1, result.size());
+        verify(bookingRepository, times(1)).findAllOwnerBookingsByState(userId, state,
+                PageRequest.of(from, size));
+    }
+
+    @Test
+    public void testCreateBooking_shouldThrowBadRequest() {
         ReceivedBookingDto bookingDto = new ReceivedBookingDto();
         Item item = new Item();
         item.setId(1L);
@@ -108,8 +320,7 @@ public class BookingServiceImplTest {
         bookingDto.setItemId(item.getId());
         bookingDto.setStart(LocalDateTime.now().plusHours(2));
         bookingDto.setEnd(LocalDateTime.now().minusHours(5));
-        Long userId = 2L;
-        when(bookingService.createBooking(bookingDto, userId)).thenThrow(new BadRequestException("Not valid fields"));
+        long userId = 2L;
 
         final BadRequestException exception = assertThrows(BadRequestException.class,
                 () -> bookingService.createBooking(bookingDto, userId));
@@ -118,38 +329,229 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    public void testCreateBooking_InappropriateUserRequest() {
+    public void testCreateBooking_withNullBookingDate_shouldThrowBadRequest() {
         ReceivedBookingDto bookingDto = new ReceivedBookingDto();
         Item item = new Item();
         item.setId(1L);
         item.setOwner(1L);
         bookingDto.setItemId(item.getId());
+        bookingDto.setStart(null);
+        bookingDto.setEnd(null);
+        long userId = 2L;
+
+        final BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> bookingService.createBooking(bookingDto, userId));
+
+        assertEquals(exception.getMessage(), "Not valid fields");
+    }
+
+    @Test
+    public void testCreateBooking_shouldThrowInappropriateUserRequest() {
+        ReceivedBookingDto bookingDto = new ReceivedBookingDto();
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(1L);
+        item.setAvailable(true);
+        bookingDto.setItemId(item.getId());
         bookingDto.setStart(LocalDateTime.now().plusHours(2));
         bookingDto.setEnd(LocalDateTime.now().plusHours(5));
-        Long userId = -1L;
+        long userId = 1L;
 
         when(itemService.getItemById(bookingDto.getItemId())).thenReturn(item);
-        when(bookingService.createBooking(bookingDto, userId)).thenThrow(new InappropriateUserException("Inappropriate User"));
 
         final InappropriateUserException exception = assertThrows(InappropriateUserException.class,
                 () -> bookingService.createBooking(bookingDto, userId));
 
-        assertEquals(exception.getMessage(), "Inappropriate User");
+        assertEquals(exception.getMessage(), "Owner cant booking own item");
     }
 
     @Test
-    public void testCreateBooking_ValidBookingRequest() {
-        ReceivedBookingDto receivedBookingDtoTest = new ReceivedBookingDto();
-        SentBookingDto sentBookingDto = new SentBookingDto();
+    public void testCreateBooking_shouldThrowItemIsUnavailable() {
+        ReceivedBookingDto bookingDto = new ReceivedBookingDto();
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(1L);
+        item.setAvailable(false);
+        bookingDto.setItemId(item.getId());
+        bookingDto.setStart(LocalDateTime.now().plusHours(2));
+        bookingDto.setEnd(LocalDateTime.now().plusHours(5));
+        long userId = 1L;
+
+        when(itemService.getItemById(bookingDto.getItemId())).thenReturn(item);
+
+        final ItemIsUnavailableException exception = assertThrows(ItemIsUnavailableException.class,
+                () -> bookingService.createBooking(bookingDto, userId));
+
+        assertEquals(exception.getMessage(), "Item " + item.getId() + "is unavailable");
+    }
+
+    @Test
+    public void testCreateBooking_shouldThrowEntityNotFound() {
+        ReceivedBookingDto bookingDto = new ReceivedBookingDto();
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(1L);
+        item.setAvailable(false);
+        bookingDto.setItemId(item.getId());
+        bookingDto.setStart(LocalDateTime.now().plusHours(2));
+        bookingDto.setEnd(LocalDateTime.now().plusHours(5));
+        long userId = 1L;
+
+        doThrow(new EntityNotFoundException("Item not found: " + item.getId())).when(itemService).getItemById(item.getId());
+
+        final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> bookingService.createBooking(bookingDto, userId));
+
+        assertEquals(exception.getMessage(), "Item not found: " + item.getId());
+    }
+
+    @Test
+    public void testCreateBooking_success() {
+        ReceivedBookingDto bookingDto = new ReceivedBookingDto();
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(1L);
+        item.setAvailable(true);
+        bookingDto.setItemId(item.getId());
+        bookingDto.setStart(LocalDateTime.now().plusHours(2));
+        bookingDto.setEnd(LocalDateTime.now().plusHours(5));
+        long userId = 2L;
+        User user = new User();
+        user.setId(userId);
         Booking booking = new Booking();
-        when(bookingService.createBooking(receivedBookingDtoTest, 1L)).thenAnswer(invocationOnMock -> {
-            bookingRepository.save(booking);
-            return sentBookingDto;
-        });
+        booking.setEnd(bookingDto.getEnd());
+        booking.setStart(bookingDto.getStart());
 
-        SentBookingDto actualDto = bookingService.createBooking(receivedBookingDtoTest, 1L);
 
-        verify(bookingRepository).save(booking);
-        assertEquals(sentBookingDto, actualDto);
+        when(itemService.getItemById(bookingDto.getItemId())).thenReturn(item);
+        when(userService.getUserById(userId)).thenReturn(user);
+        when(modelMapper.map(bookingDto, Booking.class)).thenReturn(booking);
+
+
+        bookingService.createBooking(bookingDto, userId);
+
+        verify(bookingRepository).save(any(Booking.class));
+    }
+
+    @Test
+    public void testUpdateBookingStatus_withValidRequest_returnsSentBookingDtoApproved() {
+        long bookingId = 1L;
+        String approved = "true";
+        long userId = 2L;
+
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(userId);
+
+        Booking booking = new Booking();
+        booking.setId(bookingId);
+        booking.setItem(item);
+        booking.setStatus(BookingStatus.WAITING);
+
+        SentBookingDto updatedBooking = new SentBookingDto();
+        updatedBooking.setId(bookingId);
+        updatedBooking.setItem(item);
+        updatedBooking.setStatus(BookingStatus.APPROVED);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(modelMapper.map(booking, SentBookingDto.class)).thenReturn(updatedBooking);
+
+        SentBookingDto sentBookingDto = bookingService.updateBookingStatus(bookingId, approved, userId);
+
+        verify(bookingRepository).save(any(Booking.class));
+        assertEquals(bookingId, sentBookingDto.getId());
+        assertEquals("APPROVED", sentBookingDto.getStatus().name());
+    }
+
+    @Test
+    public void testUpdateBookingStatus_withValidRequest_returnsSentBookingDtoRejected() {
+        long bookingId = 1L;
+        String approved = "false";
+        long userId = 2L;
+
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(userId);
+
+        Booking booking = new Booking();
+        booking.setId(bookingId);
+        booking.setItem(item);
+        booking.setStatus(BookingStatus.WAITING);
+
+        SentBookingDto updatedBooking = new SentBookingDto();
+        updatedBooking.setId(bookingId);
+        updatedBooking.setItem(item);
+        updatedBooking.setStatus(BookingStatus.REJECTED);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(modelMapper.map(booking, SentBookingDto.class)).thenReturn(updatedBooking);
+
+        SentBookingDto sentBookingDto = bookingService.updateBookingStatus(bookingId, approved, userId);
+
+        verify(bookingRepository).save(any(Booking.class));
+        assertEquals(bookingId, sentBookingDto.getId());
+        assertEquals("REJECTED", sentBookingDto.getStatus().name());
+    }
+
+    @Test
+    public void testUpdateBookingStatus_withInvalidBookingId_throwsEntityNotFound() {
+        long bookingId = 1L;
+        String approved = "true";
+        long userId = 2L;
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+
+        final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> bookingService.updateBookingStatus(bookingId, approved, userId));
+
+        assertEquals(exception.getMessage(), "Booking not found: " + bookingId);
+    }
+
+    @Test
+    public void testUpdateBookingStatus_withInappropriateUser_throwsInappropriateUser() {
+        long bookingId = 1L;
+        String approved = "true";
+        long userId = 2L;
+
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(3L);
+
+        Booking booking = new Booking();
+        booking.setId(bookingId);
+        booking.setItem(item);
+        booking.setStatus(BookingStatus.WAITING);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        final InappropriateUserException exception = assertThrows(InappropriateUserException.class,
+                () -> bookingService.updateBookingStatus(bookingId, approved, userId));
+
+        assertEquals(exception.getMessage(), "Inappropriate User: " + userId);
+    }
+
+    @Test
+    public void testUpdateBookingStatus_withAlreadySetStatus_throwsBookingStatusAlreadySet() {
+        long bookingId = 1L;
+        String approved = "true";
+        long userId = 2L;
+
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(userId);
+
+        Booking booking = new Booking();
+        booking.setId(bookingId);
+        booking.setItem(item);
+        booking.setStatus(BookingStatus.APPROVED);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        final BookingStatusAlreadySetException exception = assertThrows(BookingStatusAlreadySetException.class,
+                () -> bookingService.updateBookingStatus(bookingId, approved, userId));
+
+        assertEquals(exception.getMessage(), "Booking status already set: " + bookingId);
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
+// @Transactional(readOnly = true)
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -65,11 +65,11 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
             user.setEmail(userDto.getEmail());
         }
-        return convertUserToDto(user);
+        return convertUserToDto(userRepository.save(user));
     }
 
     @Override
-    @Transactional
+    // @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }

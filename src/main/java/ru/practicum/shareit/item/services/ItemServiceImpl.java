@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.services;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-@Transactional(readOnly = true)
+// @Transactional(readOnly = true)
 @Service
 public class ItemServiceImpl implements ItemService {
     private final ModelMapper mapper;
@@ -42,18 +41,18 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     public ItemServiceImpl(ModelMapper mapper, ItemRepository itemRepository, BookingRepository bookingRepository, CommentRepository commentRepository, UserService userService) {
         this.mapper = mapper;
-        this.mapper.addMappings(skipCommentFieldMap);
+        // this.mapper.addMappings(skipCommentFieldMap);
         this.itemRepository = itemRepository;
         this.bookingRepository = bookingRepository;
         this.commentRepository = commentRepository;
         this.userService = userService;
     }
 
-    PropertyMap<Item, ItemReplyDto> skipCommentFieldMap = new PropertyMap<Item, ItemReplyDto>() {
-        protected void configure() {
-            skip().setComments(null);
-        }
-    };
+    // PropertyMap<Item, ItemReplyDto> skipCommentFieldMap = new PropertyMap<Item, ItemReplyDto>() {
+    //    protected void configure() {
+    //        skip().setComments(null);
+    //    }
+    // };
 
     @Override
     @Transactional(readOnly = true)
@@ -105,7 +104,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
+    // @Transactional
     public ItemReplyDto updateItem(ItemCreationDto itemCreationDto, Long itemId, Long userId) {
         isExistItem(itemId);
         Item item = itemRepository.findById(itemId).get();
@@ -115,11 +114,11 @@ public class ItemServiceImpl implements ItemService {
         }
 
         setUpdateItemFields(item, itemCreationDto);
-        return convertItemToDto(item);
+        return convertItemToDto(itemRepository.save(item));
     }
 
     @Override
-    @Transactional
+    // @Transactional
     public void deleteItem(Long userId) {
         itemRepository.deleteById(userId);
     }
@@ -135,17 +134,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void isValidComment(CommentRequestDto commentDto, Long itemId, Long userId) {
+        if (commentDto.getText().isBlank()) {
+            throw new BadRequestException("Empty comment text");
+        }
         if (!bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(userId, itemId,
                 BookingStatus.APPROVED, LocalDateTime.now())) {
             throw new BadRequestException("User " + userId + "doesnt use this item " + itemId);
         }
-    }
-
-    private void setCommentField(Comment comment, CommentDto commentDto, Long itemId, Long userId) {
-        comment.setText(commentDto.getText());
-        comment.setAuthorName(userService.getUserById(userId).getName());
-        comment.setItem(getItemById(itemId));
-        comment.setCreated(LocalDateTime.now());
     }
 
     private void setCommentField(Comment comment, CommentRequestDto commentDto, Long itemId, Long userId) {

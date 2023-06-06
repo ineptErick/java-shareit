@@ -46,53 +46,6 @@ public class ItemServiceImplIntegrationTest {
     private UserRepository userRepository;
 
     @Test
-    public void testGetItems() {
-        User user = new User();
-        user.setName("John");
-        user.setEmail("john@example.com");
-        User savedUser = userRepository.save(user);
-
-        Item item1 = new Item();
-        item1.setName("Item 1");
-        item1.setDescription("Description 1");
-        item1.setAvailable(true);
-        item1.setOwner(savedUser.getId());
-        Item savedItem1 = itemRepository.save(item1);
-
-        Item item2 = new Item();
-        item2.setName("Item 2");
-        item2.setDescription("Description 2");
-        item2.setAvailable(false);
-        item2.setOwner(savedUser.getId());
-        Item savedItem2 = itemRepository.save(item2);
-
-        Comment comment1 = new Comment();
-        comment1.setAuthorName(savedUser.getName());
-        comment1.setText("Comment 1");
-        comment1.setItem(savedItem1);
-        commentRepository.save(comment1);
-
-        Comment comment2 = new Comment();
-        comment2.setAuthorName(savedUser.getName());
-        comment2.setText("Comment 2");
-        comment2.setItem(savedItem1);
-        commentRepository.save(comment2);
-
-        List<ItemReplyDto> items = itemService.getItems(savedUser.getId(), null, null);
-
-        assertEquals(2, items.size());
-        assertEquals(savedItem1.getId(), items.get(0).getId());
-        assertEquals("Item 1", items.get(0).getName());
-        assertEquals("Description 1", items.get(0).getDescription());
-        assertTrue(items.get(0).getAvailable());
-
-        assertEquals(savedItem2.getId(), items.get(1).getId());
-        assertEquals("Item 2", items.get(1).getName());
-        assertEquals("Description 2", items.get(1).getDescription());
-        assertFalse(items.get(1).getAvailable());
-    }
-
-    @Test
     public void testSearchItemByText_whenTextIsEmpty_shouldReturnEmptyList() {
         User user = new User();
         user.setName("John");
@@ -140,7 +93,7 @@ public class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    public void updateItem_WithValidData_ShouldUpdateItem() {
+    public void updateItem_withValidData_shouldUpdateItem() {
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
@@ -158,12 +111,13 @@ public class ItemServiceImplIntegrationTest {
 
         ItemReplyDto updatedItemDto = itemService.updateItem(itemDto, item.getId(), user.getId());
 
+
         assertEquals(itemDto.getDescription(), updatedItemDto.getDescription());
         assertEquals(updatedItemDto.getName(), item.getName());
     }
 
     @Test
-    void updateItem_WithInvalidUserId_ShouldThrowInappropriateUserException() {
+    public void updateItem_withInvalidUserId_shouldThrowInappropriateUser() {
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
@@ -176,14 +130,14 @@ public class ItemServiceImplIntegrationTest {
         item.setOwner(savedUser.getId());
         itemRepository.save(item);
 
-        ItemCreationDto itemDto = new ItemCreationDto(); // мб тут reply dto, проверь
+        ItemReplyDto itemDto = new ItemReplyDto();
         itemDto.setDescription("update");
 
         assertThrows(InappropriateUserException.class, () -> itemService.updateItem(itemDto, item.getId(), 1000L));
     }
 
     @Test
-    void updateItem_WithInvalidUserId_ShouldThrowEntityNotFoundException() {
+    public void updateItem_WithInvalidUserId_shouldThrowEntityNotFound() {
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
@@ -196,14 +150,14 @@ public class ItemServiceImplIntegrationTest {
         item.setOwner(savedUser.getId());
         itemRepository.save(item);
 
-        ItemCreationDto itemDto = new ItemCreationDto();
+        ItemReplyDto itemDto = new ItemReplyDto();
         itemDto.setDescription("update");
 
         assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(itemDto, 1000L, savedUser.getId()));
     }
 
     @Test
-    void createComment_WithValidData_ShouldCreateComment() {
+    public void createComment_WithValidData_shouldCreateComment() {
         LocalDateTime now = LocalDateTime.now();
         User user = new User();
         user.setName("John");
@@ -236,7 +190,7 @@ public class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void createComment_WithInvalidUserId_ShouldThrowBadRequestException() {
+    public void createComment_WithInvalidUserId_shouldThrowBadRequestException() {
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
@@ -252,13 +206,11 @@ public class ItemServiceImplIntegrationTest {
         CommentRequestDto commentDto = new CommentRequestDto();
         commentDto.setText("Test comment");
 
-        assertThrows(BadRequestException.class, () -> {
-            itemService.createComment(commentDto, item.getId(), Long.MAX_VALUE);
-        });
+        assertThrows(BadRequestException.class, () -> itemService.createComment(commentDto, item.getId(), Long.MAX_VALUE));
     }
 
     @Test
-    void createComment_WithEmptyText_ShouldThrowBadRequestException() {
+    public void createComment_WithEmptyText_shouldThrowBadRequestException() {
         LocalDateTime now = LocalDateTime.now();
         User user = new User();
         user.setName("John");
@@ -283,19 +235,17 @@ public class ItemServiceImplIntegrationTest {
         CommentRequestDto commentDto = new CommentRequestDto();
         commentDto.setText("");
 
-        assertThrows(BadRequestException.class, () -> {
-            itemService.createComment(commentDto, item.getId(), user.getId());
-        });
+        assertThrows(BadRequestException.class, () -> itemService.createComment(commentDto, item.getId(), user.getId()));
     }
 
     @Test
-    void createItem_WithValidData_ShouldCreateItem() {
+    public void createItem_withValidData_shouldCreateItem() {
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
         User savedUser = userRepository.save(user);
 
-        ItemCreationDto itemDto = new ItemCreationDto();
+        ItemReplyDto itemDto = new ItemReplyDto();
         itemDto.setName("Item 1");
         itemDto.setDescription("Description 1");
         itemDto.setAvailable(true);
@@ -307,13 +257,13 @@ public class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void createItem_WithValidData_ShouldThrowException() {
+    public void createItem_withValidData_shouldThrowEntityNotFound() {
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
         userRepository.save(user);
 
-        ItemCreationDto itemDto = new ItemCreationDto();
+        ItemReplyDto itemDto = new ItemReplyDto();
         itemDto.setName("Item 1");
         itemDto.setDescription("Description 1");
         itemDto.setAvailable(true);
@@ -322,7 +272,55 @@ public class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    public void getItems_WithPagination_ShouldReturnItems() {
+    public void testGetItems_noPagination() {
+        User user = new User();
+        user.setName("John");
+        user.setEmail("john@example.com");
+        User savedUser = userRepository.save(user);
+
+        Item item1 = new Item();
+        item1.setName("Item 1");
+        item1.setDescription("Description 1");
+        item1.setAvailable(true);
+        item1.setOwner(savedUser.getId());
+        Item savedItem1 = itemRepository.save(item1);
+
+        Item item2 = new Item();
+        item2.setName("Item 2");
+        item2.setDescription("Description 2");
+        item2.setAvailable(false);
+        item2.setOwner(savedUser.getId());
+        Item savedItem2 = itemRepository.save(item2);
+
+        Comment comment1 = new Comment();
+        comment1.setAuthorName(savedUser.getName());
+        comment1.setText("Comment 1");
+        comment1.setItem(savedItem1);
+        commentRepository.save(comment1);
+
+        Comment comment2 = new Comment();
+        comment2.setAuthorName(savedUser.getName());
+        comment2.setText("Comment 2");
+        comment2.setItem(savedItem1);
+        commentRepository.save(comment2);
+
+
+        List<ItemReplyDto> items = itemService.getItems(savedUser.getId(), null, null);
+
+        assertEquals(2, items.size());
+        assertEquals(savedItem1.getId(), items.get(0).getId());
+        assertEquals("Item 1", items.get(0).getName());
+        assertEquals("Description 1", items.get(0).getDescription());
+        assertTrue(items.get(0).getAvailable());
+
+        assertEquals(savedItem2.getId(), items.get(1).getId());
+        assertEquals("Item 2", items.get(1).getName());
+        assertEquals("Description 2", items.get(1).getDescription());
+        assertFalse(items.get(1).getAvailable());
+    }
+
+    @Test
+    public void getItems_withPagination_shouldReturnItems() {
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
@@ -348,7 +346,30 @@ public class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    public void testGetItemDtoById_WithValidItemIdAndUserId_ShouldReturnItemDto() {
+    public void getItems_withInvalidPaginationRequest_shouldThrowBadRequest() {
+        User user = new User();
+        user.setName("John");
+        user.setEmail("john@example.com");
+        userRepository.save(user);
+
+        Item item1 = new Item();
+        item1.setName("Test Item 1");
+        item1.setDescription("Test Item 1 Description");
+        item1.setOwner(user.getId());
+        itemRepository.save(item1);
+
+        Item item2 = new Item();
+        item2.setName("Test Item 2");
+        item2.setDescription("Test Item 2 Description");
+        item2.setOwner(user.getId());
+        itemRepository.save(item2);
+
+        assertThrows(BadRequestException.class, () -> itemService.getItems(user.getId(), 0, 0));
+    }
+
+    @Test
+    public void testGetItemDtoById_withValidItemIdAndUserId_shouldReturnItemDtoWithDate() {
+        LocalDateTime now = LocalDateTime.now();
         User user = new User();
         user.setName("John");
         user.setEmail("john@example.com");
@@ -360,10 +381,114 @@ public class ItemServiceImplIntegrationTest {
         item.setDescription("Test description");
         itemRepository.save(item);
 
+        Booking lastBooking = new Booking();
+        lastBooking.setBooker(user);
+        lastBooking.setStart(now.minusMonths(2));
+        lastBooking.setEnd(now.minusMonths(1));
+        lastBooking.setStatus(BookingStatus.APPROVED);
+        lastBooking.setItem(item);
+        bookingRepository.save(lastBooking);
+
+        Booking nextBooking = new Booking();
+        nextBooking.setBooker(user);
+        nextBooking.setStart(now.plusHours(1));
+        nextBooking.setEnd(now.plusHours(3));
+        nextBooking.setStatus(BookingStatus.APPROVED);
+        nextBooking.setItem(item);
+        bookingRepository.save(nextBooking);
+
         ItemReplyDto itemDto = itemService.getItemDtoById(item.getId(), user.getId());
 
         assertNotNull(itemDto);
         assertEquals(item.getName(), itemDto.getName());
         assertEquals(item.getDescription(), itemDto.getDescription());
+        assertEquals(lastBooking.getStart(), itemDto.getLastBooking().getBookingDate());
+        assertEquals(nextBooking.getStart(), itemDto.getNextBooking().getBookingDate());
+    }
+
+    @Test
+    public void testGetItemDtoById_withValidItemIdAndUserId_shouldReturnItemDtoWithoutDate() {
+        LocalDateTime now = LocalDateTime.now();
+        User owner = new User();
+        owner.setName("John");
+        owner.setEmail("john@example.com");
+        userRepository.save(owner);
+
+        User user = new User();
+        user.setName("Bob");
+        user.setEmail("Bob@example.com");
+        userRepository.save(user);
+
+        Item item = new Item();
+        item.setName("Test item");
+        item.setOwner(owner.getId());
+        item.setDescription("Test description");
+        itemRepository.save(item);
+
+        Booking lastBooking = new Booking();
+        lastBooking.setBooker(owner);
+        lastBooking.setStart(now.minusMonths(2));
+        lastBooking.setEnd(now.minusMonths(1));
+        lastBooking.setStatus(BookingStatus.APPROVED);
+        lastBooking.setItem(item);
+        bookingRepository.save(lastBooking);
+
+        Booking nextBooking = new Booking();
+        nextBooking.setBooker(owner);
+        nextBooking.setStart(now.plusHours(1));
+        nextBooking.setEnd(now.plusHours(3));
+        nextBooking.setStatus(BookingStatus.APPROVED);
+        nextBooking.setItem(item);
+        bookingRepository.save(nextBooking);
+
+        ItemReplyDto itemDto = itemService.getItemDtoById(item.getId(), user.getId());
+
+        assertNotNull(itemDto);
+        assertEquals(item.getName(), itemDto.getName());
+        assertEquals(item.getDescription(), itemDto.getDescription());
+        assertNull(itemDto.getNextBooking());
+        assertNull(itemDto.getLastBooking());
+    }
+
+    @Test
+    public void testGetItemDtoById_withInvalidItemId_shouldThrowEntityNotFound() {
+        User user = new User();
+        user.setName("John");
+        user.setEmail("john@example.com");
+        userRepository.save(user);
+
+        Item item = new Item();
+        item.setId(1L);
+        item.setName("Test item");
+        item.setOwner(user.getId());
+        item.setDescription("Test description");
+
+        assertThrows(EntityNotFoundException.class, () -> itemService.getItemDtoById(item.getId(), user.getId()));
+    }
+
+    @Test
+    public void testGetItemById_withInvalidItemId_shouldThrowEntityNotFound() {
+        Item item = new Item();
+        item.setId(1L);
+        item.setName("Test item");
+        item.setDescription("Test description");
+
+        assertThrows(EntityNotFoundException.class, () -> itemService.getItemById(item.getId()));
+    }
+
+    @Test
+    public void testDeleteItem() {
+        User user = new User();
+        user.setName("John");
+        user.setEmail("john@example.com");
+        userRepository.save(user);
+
+        Item item = new Item();
+        item.setName("Test item");
+        item.setOwner(user.getId());
+        item.setDescription("Test description");
+        itemRepository.save(item);
+
+        itemService.deleteItem(item.getId());
     }
 }

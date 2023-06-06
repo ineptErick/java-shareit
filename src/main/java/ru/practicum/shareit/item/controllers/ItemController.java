@@ -48,8 +48,6 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
-                                    // Здесь в качестве параметра метода соответственно будет использоваться CommentRequestDto
-                                    // - done
                                     @PathVariable Long itemId,
                                     @RequestHeader(value = USER_ID) Long userId) {
         return itemService.createComment(commentRequestDto, itemId, userId);

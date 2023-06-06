@@ -14,12 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @JsonTest
 public class ItemRequestDtoTest {
-
     @Autowired
     private JacksonTester<ItemRequestDto> json;
 
     @Test
-    void serializeJson() throws Exception {
+    public void serializeJson() throws Exception {
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         itemRequestDto.setId(1L);
         itemRequestDto.setDescription("test description");
@@ -50,14 +49,13 @@ public class ItemRequestDtoTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenDescriptionIsNull() {
+    public void shouldThrowExceptionWhenDescriptionIsNull() {
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         itemRequestDto.setDescription(null);
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<ItemRequestDto>> constraintViolations = validator.validate(itemRequestDto);
-
         assertEquals(1, constraintViolations.size());
     }
 }

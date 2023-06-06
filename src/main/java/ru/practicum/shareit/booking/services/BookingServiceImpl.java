@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
+// @Transactional(readOnly = true)
 @Slf4j
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -88,8 +88,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void isValidBookingTimeRequest(ReceivedBookingDto bookingDto) {
-        if (
-                bookingDto.getStart().compareTo(bookingDto.getEnd()) >= 0) {
+        if (bookingDto.getStart().compareTo(bookingDto.getEnd()) >= 0) {
             throw new BadRequestException("Not valid fields");
         }
     }
