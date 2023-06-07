@@ -441,7 +441,7 @@ class BookingRepositoryTest {
         booking.setStart(startDate);
         bookingRepository.save(booking);
 
-        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(user.getId(), item.getId(), BookingStatus.APPROVED, LocalDateTime.now());
+        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(user.getId(), item.getId(), BookingStatus.APPROVED, LocalDateTime.now());
 
         assertTrue(exists);
     }
@@ -471,7 +471,7 @@ class BookingRepositoryTest {
         booking.setStart(startDate);
         bookingRepository.save(booking);
 
-        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(userId, itemId, status, LocalDateTime.now());
+        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(userId, itemId, status, LocalDateTime.now());
 
         assertFalse(exists);
     }
