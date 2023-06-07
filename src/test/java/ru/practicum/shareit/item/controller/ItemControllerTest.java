@@ -143,7 +143,10 @@ public class ItemControllerTest {
         CommentRequestDto commentDto = new CommentRequestDto();
         commentDto.setText("Test Comment");
 
-        when(itemService.createComment(eq(commentDto), anyLong(), anyLong())).thenReturn(commentDto);
+        CommentDto commentDto1 = new CommentDto();
+        commentDto1.setText("Test Comment");
+
+        when(itemService.createComment(eq(commentDto), any(), any())).thenReturn(commentDto1);
 
         mockMvc.perform(post("/items/1/comment")
                         .header(HEADER_USER_ID, 1L)
