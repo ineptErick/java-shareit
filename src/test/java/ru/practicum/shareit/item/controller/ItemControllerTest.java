@@ -93,7 +93,6 @@ public class ItemControllerTest {
         item2.setName("Test item 2");
 
         List<ItemReplyDto> items = Arrays.asList(item1, item2);
-
         when(itemService.searchItemByText(anyString())).thenReturn(items);
 
         mockMvc.perform(get("/items/search").param("text", "test"))
