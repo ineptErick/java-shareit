@@ -91,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
                 bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
                 bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
                 bookingDto.getStart().isEqual(bookingDto.getEnd())) {
-            throw new BadRequestException ("Not valid fields");
+            throw new BadRequestException("Not valid fields");
         }
     }
 
