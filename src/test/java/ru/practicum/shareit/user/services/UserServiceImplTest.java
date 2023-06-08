@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class})
 public class UserServiceImplTest {
+
     @InjectMocks
     private UserServiceImpl userService;
     @Mock

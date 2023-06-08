@@ -30,7 +30,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestDto createRequest(ItemRequestDto requestDto, Long userId) {
+    public ItemRequestDto createRequest(ItemRequestDto requestDto, long userId) {
         userService.isExistUser(userId);
         ItemRequest request = convertDtoToRequest(requestDto);
         request.setOwner(userId);
@@ -39,19 +39,19 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestDto getRequestById(Long requestId, Long userId) {
+    public ItemRequestDto getRequestById(long requestId, long userId) {
         userService.isExistUser(userId);
         return convertRequestToDto(requestRepository.findById(requestId).orElseThrow(() -> new EntityNotFoundException("")));
     }
 
     @Override
-    public List<ItemRequestDto> getOwnerRequests(Long ownerId) {
+    public List<ItemRequestDto> getOwnerRequests(long ownerId) {
         userService.isExistUser(ownerId);
         return convertListToDto(requestRepository.findAllByOwner(ownerId));
     }
 
     @Override
-    public List<ItemRequestDto> getUserRequests(Long userId, Integer from, Integer size) {
+    public List<ItemRequestDto> getUserRequests(long userId, Integer from, Integer size) {
         if (from == null && size == null) {
             return convertListToDto(requestRepository.findAllByOwner(userId));
         }

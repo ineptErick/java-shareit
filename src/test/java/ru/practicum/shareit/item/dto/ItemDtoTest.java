@@ -9,7 +9,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -19,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @JsonTest
 public class ItemDtoTest {
     @Autowired
-    private JacksonTester<ItemReplyDto> json;
+    private JacksonTester<ItemDto> json;
 
     @Test
     public void testSerializeDto() throws Exception {
-        ItemReplyDto dto = new ItemReplyDto();
+        ItemDto dto = new ItemDto();
         dto.setId(1L);
         dto.setName("Test Item1");
 
@@ -37,25 +36,25 @@ public class ItemDtoTest {
     @Test
     public void testDeserializeDto() throws Exception {
         String jsonInput = "{\"id\":1,\"name\":\"Test User\",\"email\":\"test@test.com\"}";
-        ItemReplyDto expectedDto = new ItemReplyDto();
+        ItemDto expectedDto = new ItemDto();
         expectedDto.setId(1L);
         expectedDto.setName("Test User");
 
-        ItemReplyDto dto = json.parse(jsonInput).getObject();
-// ItemDtoTest.testDeserializeDto:46
+        ItemDto dto = json.parse(jsonInput).getObject();
+
         assertThat(dto).isEqualTo(expectedDto);
     }
 
     @Test
     public void testInvalidDto() {
-        ItemReplyDto item = new ItemReplyDto();
+        ItemDto item = new ItemDto();
         item.setName("");
         item.setDescription("");
         item.setAvailable(null);
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<ItemReplyDto>> violations = validator.validate(item);
+        Set<ConstraintViolation<ItemDto>> violations = validator.validate(item);
 
         assertEquals(3, violations.size());
         assertTrue(violations.stream()

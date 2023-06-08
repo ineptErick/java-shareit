@@ -13,3 +13,4 @@ public interface RequestRepository extends JpaRepository<ItemRequest, Long> {
 
     List<ItemRequest> findAllByOwnerNot(Long ownerId, Pageable pageable);
 }
+

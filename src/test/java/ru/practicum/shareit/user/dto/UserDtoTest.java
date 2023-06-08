@@ -56,6 +56,7 @@ public class UserDtoTest {
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UserDto>> constraintViolations = validator.validate(dto);
 
+
         assertEquals(1, constraintViolations.size());
     }
 
@@ -69,6 +70,7 @@ public class UserDtoTest {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UserDto>> constraintViolations = validator.validate(dto);
+
 
         assertEquals(1, constraintViolations.size());
     }

@@ -111,7 +111,7 @@ public class UserServiceImplIntegrationTest {
         userDto.setName("test1");
         userDto.setEmail("test1@example.com");
 
-        assertThrows(EntityNotFoundException.class, () -> userService.updateUser(userDto, 1L));
+        assertThrows(EntityNotFoundException.class, () -> userService.updateUser(userDto, 1));
     }
 
     @Test

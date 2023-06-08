@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith({SpringExtension.class})
 @WebMvcTest(controllers = BookingController.class)
 public class BookingControllerTest {
-
     private static final String USER_ID = "X-Sharer-User-Id";
 
     @MockBean

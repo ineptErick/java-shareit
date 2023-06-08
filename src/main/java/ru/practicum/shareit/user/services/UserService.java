@@ -10,13 +10,13 @@ public interface UserService {
 
     UserDto createUser(UserDto userDto);
 
-    UserDto updateUser(UserDto userDto, Long id);
+    UserDto updateUser(UserDto userDto, long id);
 
-    void deleteUser(Long userId);
+    void deleteUser(long userId);
 
-    UserDto getUserDtoById(Long id);
+    UserDto getUserDtoById(long id);
 
-    void isExistUser(Long userId);
+    void isExistUser(long userId);
 
-    User getUserById(Long userId);
+    User getUserById(long userId);
 }

@@ -34,8 +34,6 @@ class BookingRepositoryTest {
 
     @Test
     public void testFindAllUserBookingsByState() {
-        // Пропущены модификаторы доступа у всех методов этого класса.
-
         User user = new User();
         user.setName("John Doe");
         user.setEmail("johndoe@example.com");
@@ -188,7 +186,7 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void testFindAllOwnerBookingsByStateWithPagination() {
+    public void testFindAllOwnerBookingsByStateWithPagination() {
         User user = new User();
         user.setName("John Doe");
         user.setEmail("johndoe@example.com");
@@ -228,6 +226,7 @@ class BookingRepositoryTest {
         b3.setStatus(BookingStatus.APPROVED);
         b3.setItem(item);
         bookingRepository.save(b3);
+
 
         int pageSize = 2;
         int pageNumber = 0;
@@ -441,7 +440,7 @@ class BookingRepositoryTest {
         booking.setStart(startDate);
         bookingRepository.save(booking);
 
-        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(user.getId(), item.getId(), BookingStatus.APPROVED, LocalDateTime.now());
+        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(user.getId(), item.getId(), BookingStatus.APPROVED, LocalDateTime.now());
 
         assertTrue(exists);
     }
@@ -471,7 +470,7 @@ class BookingRepositoryTest {
         booking.setStart(startDate);
         bookingRepository.save(booking);
 
-        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(userId, itemId, status, LocalDateTime.now());
+        boolean exists = bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(userId, itemId, status, LocalDateTime.now());
 
         assertFalse(exists);
     }

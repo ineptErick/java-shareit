@@ -11,10 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.controllers.ItemController;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemReplyDto;
 import ru.practicum.shareit.item.services.ItemService;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +45,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void testGetItemById() {
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setId(ITEM_ID);
         itemDto.setName("Test item");
 
@@ -61,15 +60,15 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void testGetItems() {
-        ItemReplyDto item1 = new ItemReplyDto();
+        ItemDto item1 = new ItemDto();
         item1.setId(ITEM_ID);
         item1.setName("Test item 1");
 
-        ItemReplyDto item2 = new ItemReplyDto();
+        ItemDto item2 = new ItemDto();
         item2.setId(ITEM_ID + 1);
         item2.setName("Test item 2");
 
-        List<ItemReplyDto> items = Arrays.asList(item1, item2);
+        List<ItemDto> items = Arrays.asList(item1, item2);
 
         when(itemService.getItems(eq(USER_ID), eq(null), eq(null))).thenReturn(items);
 
@@ -84,15 +83,16 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void testSearchItemsByText() {
-        ItemReplyDto item1 = new ItemReplyDto();
+        ItemDto item1 = new ItemDto();
         item1.setId(ITEM_ID);
         item1.setName("Test item 1");
 
-        ItemReplyDto item2 = new ItemReplyDto();
+        ItemDto item2 = new ItemDto();
         item2.setId(ITEM_ID + 1);
         item2.setName("Test item 2");
 
-        List<ItemReplyDto> items = Arrays.asList(item1, item2);
+        List<ItemDto> items = Arrays.asList(item1, item2);
+
         when(itemService.searchItemByText(anyString())).thenReturn(items);
 
         mockMvc.perform(get("/items/search").param("text", "test"))
@@ -106,7 +106,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void testCreateItem_Success() {
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setName("Test Item");
         itemDto.setDescription("Test Desc");
         itemDto.setAvailable(true);
@@ -125,7 +125,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void testCreateItem_InvalidItem() {
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setName("");
 
         mockMvc.perform(post("/items")
@@ -139,13 +139,10 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void testCreateComment_Success() {
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentDto commentDto = new CommentDto();
         commentDto.setText("Test Comment");
 
-        CommentDto commentDto1 = new CommentDto();
-        commentDto1.setText("Test Comment");
-
-        when(itemService.createComment(eq(commentDto), any(), any())).thenReturn(commentDto1);
+        when(itemService.createComment(eq(commentDto), anyLong(), anyLong())).thenReturn(commentDto);
 
         mockMvc.perform(post("/items/1/comment")
                         .header(HEADER_USER_ID, 1L)
@@ -159,7 +156,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void testUpdateItem_Success() {
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setId(1L);
         itemDto.setName("Test Item");
 

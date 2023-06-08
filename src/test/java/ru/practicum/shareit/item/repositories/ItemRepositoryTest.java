@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Arrays;
@@ -83,7 +82,7 @@ class ItemRepositoryTest {
 
         itemRepository.saveAll(Arrays.asList(item1, item2, item3));
 
-        List<Item> items = itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.DESC,"id"));
+        List<Item> items = itemRepository.findAllByOwner(ownerId);
 
         assertNotNull(items);
         assertEquals(items.size(), 2);

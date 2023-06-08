@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-// @Transactional(readOnly = true)
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -26,13 +25,14 @@ public class UserServiceImpl implements UserService {
         this.mapper = mapper;
     }
 
+
     @Transactional(readOnly = true)
     @Override
-    public UserDto getUserDtoById(Long userId) {
+    public UserDto getUserDtoById(long userId) {
         return convertUserToDto(getUserById(userId));
     }
 
-    public User getUserById(Long userId) {
+    public User getUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
     }
@@ -53,29 +53,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public UserDto updateUser(UserDto userDto, Long userId) {
-        isExistUser(userId);
+    public UserDto updateUser(UserDto userDto, long userId) {
+        User user = getUserById(userId);
         isUsedEmail(userDto.getEmail(), userId);
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("There is no such a user"));
 
-        if (userDto.getName() != null && !userDto.getName().isBlank()) {
+        if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
-        if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
+        if (userDto.getEmail() != null) {
             user.setEmail(userDto.getEmail());
         }
+
         return convertUserToDto(userRepository.save(user));
     }
 
     @Override
-    // @Transactional
-    public void deleteUser(Long userId) {
+    public void deleteUser(long userId) {
         userRepository.deleteById(userId);
     }
 
     @Override
-    public void isExistUser(Long userId) {
+    public void isExistUser(long userId) {
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException("User not found: " + userId);
         }
@@ -89,10 +87,10 @@ public class UserServiceImpl implements UserService {
         return mapper.map(user, UserDto.class);
     }
 
-    private void isUsedEmail(String email, Long userId) {
+    private void isUsedEmail(String email, long userId) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent() && user.get().getId() != userId) {
-            throw new AlreadyUsedEmailException(email);
+            throw new AlreadyUsedEmailException("Already Used Email: " + email);
         }
     }
 }

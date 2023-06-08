@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -18,12 +17,11 @@ import ru.practicum.shareit.user.services.UserService;
 import ru.practicum.shareit.util.BookingState;
 import ru.practicum.shareit.util.BookingStatus;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// @Transactional(readOnly = true)
-@Slf4j
 @Service
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
@@ -44,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public SentBookingDto getBooking(Long bookingId, Long userId) {
+    public SentBookingDto getBooking(long bookingId, long userId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + bookingId));
         if (booking.getBooker().getId() == userId || booking.getItem().getOwner() == userId) {
@@ -55,10 +53,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional(readOnly = true)
-    public List<SentBookingDto> getAllUserBookings(Long userId, String state, String userType, Integer from, Integer size) {
+    public List<SentBookingDto> getAllUserBookings(long userId, String state, String userType, Integer from, Integer size) {
         if (Arrays.stream(BookingState.values()).noneMatch(enumState -> enumState.name().equals(state))) {
-            log.debug("booking not found for user {}", userId);
-            throw new UnsupportedStatusException("Unknown state: " + state);
+            throw new UnsupportedStatusException("Unknown state");
         }
         userService.isExistUser(userId);
         List<Booking> bookings = (from == null && size == null)
@@ -68,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional
-    public SentBookingDto createBooking(ReceivedBookingDto bookingDto, Long userId) {
+    public SentBookingDto createBooking(ReceivedBookingDto bookingDto, long userId) {
         isValidBookingTimeRequest(bookingDto);
         Item item = itemService.getItemById(bookingDto.getItemId());
         isValidBookingItemRequest(item, userId);
@@ -79,21 +76,26 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional
-    public SentBookingDto updateBookingStatus(Long bookingId, String approved, Long userId) {
+    public SentBookingDto updateBookingStatus(long bookingId, String approved, long userId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found" + bookingId));
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found: " + bookingId));
         isValidUpdateBookingStatusRequest(booking, userId, bookingId);
         setBookingStatus(booking, approved);
         return convertBookingToDto(bookingRepository.save(booking));
     }
 
     private void isValidBookingTimeRequest(ReceivedBookingDto bookingDto) {
-        if (bookingDto.getStart().compareTo(bookingDto.getEnd()) >= 0) {
-            throw new BadRequestException("Not valid fields");
+        if (bookingDto.getStart() == null ||
+                bookingDto.getEnd() == null ||
+                (LocalDateTime.now().isAfter(bookingDto.getStart())) ||
+                bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
+                bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
+                bookingDto.getStart().isEqual(bookingDto.getEnd())) {
+            throw new BadRequestException ("Not valid fields");
         }
     }
 
-    private void isValidBookingItemRequest(Item item, Long userId) {
+    private void isValidBookingItemRequest(Item item, long userId) {
         if (item.getAvailable().equals(false)) {
             throw new ItemIsUnavailableException("Item " + item.getId() + "is unavailable");
         }
@@ -102,7 +104,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void isValidUpdateBookingStatusRequest(Booking booking, Long userId, Long bookingId) {
+    private void isValidUpdateBookingStatusRequest(Booking booking, long userId, long bookingId) {
         if (booking.getItem().getOwner() != userId) {
             throw new InappropriateUserException("Inappropriate User: " + userId);
         }
@@ -111,7 +113,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private List<Booking> getAllUserBookingsWithPagination(Long userId, String state, String userType, Integer from, Integer size) {
+    private List<Booking> getAllUserBookingsWithPagination(long userId, String state, String userType, Integer from, Integer size) {
         if ((from == 0 && size == 0) || (from < 0 || size < 0)) {
             throw new BadRequestException("Request without pagination");
         }
@@ -129,7 +131,7 @@ public class BookingServiceImpl implements BookingService {
                 : bookingRepository.findAllOwnerBookingsByState(userId, state, pageRequest);
     }
 
-    private List<Booking> getAllUserBookingsWithoutPagination(Long userId, String state, String userType) {
+    private List<Booking> getAllUserBookingsWithoutPagination(long userId, String state, String userType) {
         return userType.equals(USER)
                 ? bookingRepository.findAllUserBookingsByState(userId, state)
                 : bookingRepository.findAllOwnerBookingsByState(userId, state);

@@ -14,7 +14,7 @@ import ru.practicum.shareit.booking.repositories.BookingRepository;
 import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.services.ItemService;
 import ru.practicum.shareit.booking.dto.SentBookingDto.Item;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.booking.dto.SentBookingDto.User;
 import ru.practicum.shareit.user.services.UserService;
 import ru.practicum.shareit.util.BookingStatus;
 
@@ -45,7 +45,7 @@ public class BookingServiceImplTest {
 
     @Test
     public void testGetBookingReturnsBookingDto_success() {
-        SentBookingDto.Booker user = new SentBookingDto.Booker();
+        User user = new User();
         user.setId(USER_ID);
         Booking booking = new Booking();
         booking.setId(BOOKING_ID);
@@ -93,6 +93,7 @@ public class BookingServiceImplTest {
         String userType = "USER";
         Integer from = 0;
         Integer size = 10;
+
 
         assertThrows(UnsupportedStatusException.class, () -> bookingService.getAllUserBookings(userId, state, userType, from, size));
     }
@@ -202,6 +203,7 @@ public class BookingServiceImplTest {
         b2.setStatus(BookingStatus.APPROVED);
         bookings.add(b2);
 
+
         Slice<Booking> requestPage = new PageImpl<>(bookings);
         when(bookingRepository.findAllUserBookingsByState(userId, state,
                 PageRequest.of(from, size))).thenReturn(requestPage);
@@ -233,6 +235,7 @@ public class BookingServiceImplTest {
         b2.setEnd(now.plusHours(3));
         b2.setStatus(BookingStatus.APPROVED);
         bookings.add(b2);
+
 
         Slice<Booking> requestPage = new PageImpl<>(bookings);
         when(bookingRepository.findAllOwnerBookingsByState(userId, state,

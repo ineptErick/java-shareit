@@ -9,14 +9,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.model.BookingDate;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
 import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.InappropriateUserException;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemReplyDto;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repositories.CommentRepository;
@@ -57,7 +56,7 @@ class ItemServiceImplTest {
     public void updateItem_WithValidData_ShouldUpdateItemDescription() {
         long itemId = 1L;
         long userId = 2L;
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setDescription("new description");
 
         Item item = new Item();
@@ -66,16 +65,16 @@ class ItemServiceImplTest {
         item.setDescription("old description");
         item.setOwner(userId);
 
-        ItemReplyDto itemDto1 = new ItemReplyDto();
+        ItemDto itemDto1 = new ItemDto();
         itemDto1.setId(itemId);
         itemDto1.setName("name");
         itemDto1.setDescription("new description");
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(itemRepository.save(item)).thenReturn(item);
-        when(modelMapper.map(item, ItemReplyDto.class)).thenReturn(itemDto1);
+        when(modelMapper.map(item, ItemDto.class)).thenReturn(itemDto1);
 
-        ItemReplyDto updatedItem = itemService.updateItem(itemDto, itemId, userId);
+        ItemDto updatedItem = itemService.updateItem(itemDto, itemId, userId);
 
         assertEquals(itemDto.getDescription(), updatedItem.getDescription());
         verify(itemRepository).save(item);
@@ -85,7 +84,7 @@ class ItemServiceImplTest {
     public void updateItem_WithValidData_ShouldUpdateItemName() {
         long itemId = 1L;
         long userId = 2L;
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setName("new name");
 
         Item item = new Item();
@@ -94,16 +93,16 @@ class ItemServiceImplTest {
         item.setDescription("old description");
         item.setOwner(userId);
 
-        ItemReplyDto itemDto1 = new ItemReplyDto();
+        ItemDto itemDto1 = new ItemDto();
         itemDto1.setId(itemId);
         itemDto1.setName("new name");
         item.setDescription("old description");
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(itemRepository.save(item)).thenReturn(item);
-        when(modelMapper.map(item, ItemReplyDto.class)).thenReturn(itemDto1);
+        when(modelMapper.map(item, ItemDto.class)).thenReturn(itemDto1);
 
-        ItemReplyDto updatedItem = itemService.updateItem(itemDto, itemId, userId);
+        ItemDto updatedItem = itemService.updateItem(itemDto, itemId, userId);
 
         assertEquals(itemDto.getName(), updatedItem.getName());
         verify(itemRepository).save(item);
@@ -113,7 +112,7 @@ class ItemServiceImplTest {
     public void updateItem_WithValidData_ShouldUpdateItemAvailable() {
         long itemId = 1L;
         long userId = 2L;
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setAvailable(true);
 
         Item item = new Item();
@@ -123,7 +122,7 @@ class ItemServiceImplTest {
         item.setOwner(userId);
         item.setAvailable(false);
 
-        ItemReplyDto itemDto1 = new ItemReplyDto();
+        ItemDto itemDto1 = new ItemDto();
         itemDto1.setId(itemId);
         itemDto1.setName("old name");
         itemDto1.setDescription("old description");
@@ -131,9 +130,9 @@ class ItemServiceImplTest {
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(itemRepository.save(item)).thenReturn(item);
-        when(modelMapper.map(item, ItemReplyDto.class)).thenReturn(itemDto1);
+        when(modelMapper.map(item, ItemDto.class)).thenReturn(itemDto1);
 
-        ItemReplyDto updatedItem = itemService.updateItem(itemDto, itemId, userId);
+        ItemDto updatedItem = itemService.updateItem(itemDto, itemId, userId);
 
         assertEquals(itemDto.getAvailable(), updatedItem.getAvailable());
         verify(itemRepository).save(item);
@@ -143,7 +142,7 @@ class ItemServiceImplTest {
     public void testUpdateItem_shouldThrowInappropriateUserException() {
         long itemId = 1L;
         long userId = 2L;
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setName("new name");
         itemDto.setDescription("new description");
 
@@ -162,7 +161,7 @@ class ItemServiceImplTest {
     public void testUpdateUser_withNonExistentUserId_shouldThrowException() {
         long itemId = 1L;
         long userId = 1L;
-        ItemReplyDto updatedItemDto = new ItemReplyDto();
+        ItemDto updatedItemDto = new ItemDto();
         updatedItemDto.setDescription("text");
 
         final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
@@ -184,7 +183,7 @@ class ItemServiceImplTest {
     public void testCreateComment_success() {
         long itemId = 1L;
         long userId = 1L;
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentDto commentDto = new CommentDto();
         commentDto.setText("text");
         commentDto.setAuthorName("John");
         User user = new User();
@@ -197,7 +196,7 @@ class ItemServiceImplTest {
         comment.setItem(item);
 
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
-        when(bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndEndBefore(eq(userId), eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(true);
+        when(bookingRepository.existsBookingByBooker_IdAndItem_IdAndStatusAndStartBefore(eq(userId), eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(true);
         when(userService.getUserById(userId)).thenReturn(user);
         when(itemRepository.findById(userId)).thenReturn(Optional.of(item));
 
@@ -210,7 +209,7 @@ class ItemServiceImplTest {
     public void testCreateComment_withEmptyText_shouldThrowException() {
         long itemId = 1L;
         long userId = 1L;
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentDto commentDto = new CommentDto();
         commentDto.setText("");
 
         final BadRequestException exception = assertThrows(BadRequestException.class,
@@ -223,7 +222,7 @@ class ItemServiceImplTest {
     public void testCreateComment_withoutBooking_shouldThrowException() {
         long itemId = 1L;
         long userId = 1L;
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentDto commentDto = new CommentDto();
         commentDto.setText("text");
 
         final BadRequestException exception = assertThrows(BadRequestException.class,
@@ -235,7 +234,7 @@ class ItemServiceImplTest {
     @Test
     public void testCreateItem_success() {
         long userId = 1L;
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setName("new name");
         itemDto.setDescription("new description");
         itemDto.setAvailable(true);
@@ -256,7 +255,7 @@ class ItemServiceImplTest {
     @Test
     public void testCreateItem_NonExistentUserId_shouldThrowException() {
         long userId = 1L;
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
 
         doThrow(new EntityNotFoundException("User not found: " + userId))
                 .when(userService).isExistUser(userId);
@@ -276,7 +275,7 @@ class ItemServiceImplTest {
 
         when(itemRepository.searchItemByText(text)).thenReturn(items);
 
-        List<ItemReplyDto> result = itemService.searchItemByText(text);
+        List<ItemDto> result = itemService.searchItemByText(text);
 
         assertEquals(items.size(), result.size());
         verify(itemRepository, times(1)).searchItemByText(text);
@@ -288,7 +287,7 @@ class ItemServiceImplTest {
 
         when(itemRepository.searchItemByText(text)).thenReturn(Collections.emptyList());
 
-        List<ItemReplyDto> result = itemService.searchItemByText(text);
+        List<ItemDto> result = itemService.searchItemByText(text);
 
         assertTrue(result.isEmpty());
         verify(itemRepository, times(1)).searchItemByText(text);
@@ -298,7 +297,7 @@ class ItemServiceImplTest {
     public void testSearchItemByTextWhenTextIsBlank_shouldReturnEmptyList() {
         String text = "";
 
-        List<ItemReplyDto> result = itemService.searchItemByText(text);
+        List<ItemDto> result = itemService.searchItemByText(text);
 
         assertTrue(result.isEmpty());
 
@@ -322,18 +321,18 @@ class ItemServiceImplTest {
         item2.setName("Item 2");
         item2.setDescription("Description 2");
         items.add(item2);
-        ItemReplyDto itemDto1 = new ItemReplyDto();
+        ItemDto itemDto1 = new ItemDto();
         itemDto1.setId(item1.getId());
-        ItemReplyDto itemDto2 = new ItemReplyDto();
+        ItemDto itemDto2 = new ItemDto();
         itemDto2.setId(item2.getId());
 
         Page<Item> page = new PageImpl<>(items);
 
         when(itemRepository.findAllByOwner(ownerId, PageRequest.of(from, size))).thenReturn(page);
-        when(modelMapper.map(item1, ItemReplyDto.class)).thenReturn(itemDto1);
-        when(modelMapper.map(item2, ItemReplyDto.class)).thenReturn(itemDto2);
+        when(modelMapper.map(item1, ItemDto.class)).thenReturn(itemDto1);
+        when(modelMapper.map(item2, ItemDto.class)).thenReturn(itemDto2);
 
-        List<ItemReplyDto> itemsDto = itemService.getItems(ownerId, from, size);
+        List<ItemDto> itemsDto = itemService.getItems(ownerId, from, size);
         assertEquals(items.size(), itemsDto.size());
         assertEquals(item1.getId(), itemsDto.get(0).getId());
         assertEquals(item2.getId(), itemsDto.get(1).getId());
@@ -356,16 +355,16 @@ class ItemServiceImplTest {
         item2.setName("Item 2");
         item2.setDescription("Description 2");
         items.add(item2);
-        ItemReplyDto itemDto1 = new ItemReplyDto();
+        ItemDto itemDto1 = new ItemDto();
         itemDto1.setId(item1.getId());
-        ItemReplyDto itemDto2 = new ItemReplyDto();
+        ItemDto itemDto2 = new ItemDto();
         itemDto2.setId(item2.getId());
 
-        when(itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.DESC,"id"))).thenReturn(items);
-        when(modelMapper.map(item1, ItemReplyDto.class)).thenReturn(itemDto1);
-        when(modelMapper.map(item2, ItemReplyDto.class)).thenReturn(itemDto2);
+        when(itemRepository.findAllByOwner(ownerId)).thenReturn(items);
+        when(modelMapper.map(item1, ItemDto.class)).thenReturn(itemDto1);
+        when(modelMapper.map(item2, ItemDto.class)).thenReturn(itemDto2);
 
-        List<ItemReplyDto> itemsDto = itemService.getItems(ownerId, from, size);
+        List<ItemDto> itemsDto = itemService.getItems(ownerId, from, size);
         assertEquals(items.size(), itemsDto.size());
         assertEquals(item1.getId(), itemsDto.get(0).getId());
         assertEquals(item2.getId(), itemsDto.get(1).getId());
@@ -388,18 +387,18 @@ class ItemServiceImplTest {
         item2.setName("Item 2");
         item2.setDescription("Description 2");
         items.add(item2);
-        ItemReplyDto itemDto1 = new ItemReplyDto();
+        ItemDto itemDto1 = new ItemDto();
         itemDto1.setId(item1.getId());
-        ItemReplyDto itemDto2 = new ItemReplyDto();
+        ItemDto itemDto2 = new ItemDto();
         itemDto2.setId(item2.getId());
 
-        when(itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.DESC,"id"))).thenReturn(items);
+        when(itemRepository.findAllByOwner(ownerId)).thenReturn(items);
         when(bookingRepository.findAllNextBooking(eq(List.of(item1.getId(), item2.getId())), any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
-        when(modelMapper.map(item1, ItemReplyDto.class)).thenReturn(itemDto1);
-        when(modelMapper.map(item2, ItemReplyDto.class)).thenReturn(itemDto2);
+        when(modelMapper.map(item1, ItemDto.class)).thenReturn(itemDto1);
+        when(modelMapper.map(item2, ItemDto.class)).thenReturn(itemDto2);
 
-        List<ItemReplyDto> itemsDto = itemService.getItems(ownerId, from, size);
+        List<ItemDto> itemsDto = itemService.getItems(ownerId, from, size);
         assertEquals(items.size(), itemsDto.size());
         assertEquals(item1.getId(), itemsDto.get(0).getId());
         assertEquals(item2.getId(), itemsDto.get(1).getId());
@@ -424,18 +423,18 @@ class ItemServiceImplTest {
         item2.setName("Item 2");
         item2.setDescription("Description 2");
         items.add(item2);
-        ItemReplyDto itemDto1 = new ItemReplyDto();
+        ItemDto itemDto1 = new ItemDto();
         itemDto1.setId(item1.getId());
-        ItemReplyDto itemDto2 = new ItemReplyDto();
+        ItemDto itemDto2 = new ItemDto();
         itemDto2.setId(item2.getId());
 
-        when(itemRepository.findAllByOwner(ownerId, Sort.by(Sort.Direction.DESC,"id"))).thenReturn(items);
+        when(itemRepository.findAllByOwner(ownerId)).thenReturn(items);
         when(bookingRepository.findAllLastBooking(eq(List.of(item1.getId(), item2.getId())), any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
-        when(modelMapper.map(item1, ItemReplyDto.class)).thenReturn(itemDto1);
-        when(modelMapper.map(item2, ItemReplyDto.class)).thenReturn(itemDto2);
+        when(modelMapper.map(item1, ItemDto.class)).thenReturn(itemDto1);
+        when(modelMapper.map(item2, ItemDto.class)).thenReturn(itemDto2);
 
-        List<ItemReplyDto> itemsDto = itemService.getItems(ownerId, from, size);
+        List<ItemDto> itemsDto = itemService.getItems(ownerId, from, size);
         assertEquals(items.size(), itemsDto.size());
         assertEquals(item1.getId(), itemsDto.get(0).getId());
         assertEquals(item2.getId(), itemsDto.get(1).getId());
@@ -478,11 +477,6 @@ class ItemServiceImplTest {
             public Long getBookerId() {
                 return null;
             }
-
-            @Override
-            public Long getItemId() {
-                return null;
-            }
         };
 
         BookingDate nextBookingDate = new BookingDate() {
@@ -500,24 +494,21 @@ class ItemServiceImplTest {
             public Long getBookerId() {
                 return null;
             }
-
-            @Override
-            public Long getItemId() {
-                return null;
-            }
         };
 
-        ItemReplyDto expectedDto = new ItemReplyDto();
+        ItemDto expectedDto = new ItemDto();
         expectedDto.setId(itemId);
         expectedDto.setLastBooking(lastBookingDate);
         expectedDto.setLastBooking(nextBookingDate);
 
+
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(modelMapper.map(item, ItemReplyDto.class)).thenReturn(expectedDto);
+        when(modelMapper.map(item, ItemDto.class)).thenReturn(expectedDto);
         when(bookingRepository.findLastBooking(eq(itemId), any(LocalDateTime.class))).thenReturn(lastBookingDate);
         when(bookingRepository.findNextBooking(eq(itemId), any(LocalDateTime.class))).thenReturn(nextBookingDate);
 
-        ItemReplyDto actualDto = itemService.getItemDtoById(itemId, userId);
+
+        ItemDto actualDto = itemService.getItemDtoById(itemId, userId);
 
         assertEquals(expectedDto.getId(), actualDto.getId());
         assertEquals(expectedDto.getLastBooking(), actualDto.getLastBooking());
@@ -539,16 +530,16 @@ class ItemServiceImplTest {
         item.setAvailable(true);
 
 
-        ItemReplyDto expectedDto = new ItemReplyDto();
+        ItemDto expectedDto = new ItemDto();
         expectedDto.setId(itemId);
         expectedDto.setDescription("text");
         expectedDto.setAvailable(true);
 
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(modelMapper.map(item, ItemReplyDto.class)).thenReturn(expectedDto);
+        when(modelMapper.map(item, ItemDto.class)).thenReturn(expectedDto);
 
-        ItemReplyDto actualDto = itemService.getItemDtoById(itemId, userId);
+        ItemDto actualDto = itemService.getItemDtoById(itemId, userId);
 
         assertEquals(expectedDto.getId(), actualDto.getId());
 

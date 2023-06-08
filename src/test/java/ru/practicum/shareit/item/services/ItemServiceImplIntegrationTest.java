@@ -10,9 +10,7 @@ import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.InappropriateUserException;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemCreationDto;
-import ru.practicum.shareit.item.dto.ItemReplyDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repositories.CommentRepository;
@@ -21,6 +19,7 @@ import ru.practicum.shareit.user.model.User;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+
 import ru.practicum.shareit.user.repositories.UserRepository;
 import ru.practicum.shareit.util.BookingStatus;
 
@@ -60,7 +59,7 @@ public class ItemServiceImplIntegrationTest {
         itemRepository.save(item1);
         String text = "";
 
-        List<ItemReplyDto> result = itemService.searchItemByText(text);
+        List<ItemDto> result = itemService.searchItemByText(text);
 
         assertThat(result.isEmpty()).isTrue();
     }
@@ -86,7 +85,7 @@ public class ItemServiceImplIntegrationTest {
 
         String text = "item";
 
-        List<ItemReplyDto> result = itemService.searchItemByText(text);
+        List<ItemDto> result = itemService.searchItemByText(text);
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getName()).isEqualToIgnoringCase("item 1");
@@ -106,10 +105,10 @@ public class ItemServiceImplIntegrationTest {
         item.setOwner(savedUser.getId());
         itemRepository.save(item);
 
-        ItemCreationDto itemDto = new ItemCreationDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setDescription("update");
 
-        ItemReplyDto updatedItemDto = itemService.updateItem(itemDto, item.getId(), user.getId());
+        ItemDto updatedItemDto = itemService.updateItem(itemDto, item.getId(), user.getId());
 
 
         assertEquals(itemDto.getDescription(), updatedItemDto.getDescription());
@@ -130,10 +129,10 @@ public class ItemServiceImplIntegrationTest {
         item.setOwner(savedUser.getId());
         itemRepository.save(item);
 
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setDescription("update");
 
-        assertThrows(InappropriateUserException.class, () -> itemService.updateItem(itemDto, item.getId(), 1000L));
+        assertThrows(InappropriateUserException.class, () -> itemService.updateItem(itemDto, item.getId(), 1000));
     }
 
     @Test
@@ -150,10 +149,10 @@ public class ItemServiceImplIntegrationTest {
         item.setOwner(savedUser.getId());
         itemRepository.save(item);
 
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setDescription("update");
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(itemDto, 1000L, savedUser.getId()));
+        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(itemDto, 1000, savedUser.getId()));
     }
 
     @Test
@@ -179,8 +178,9 @@ public class ItemServiceImplIntegrationTest {
         b1.setItem(item);
         bookingRepository.save(b1);
 
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentDto commentDto = new CommentDto();
         commentDto.setText("Test comment");
+
 
         CommentDto createdComment = itemService.createComment(commentDto, item.getId(), user.getId());
 
@@ -203,7 +203,7 @@ public class ItemServiceImplIntegrationTest {
         item.setOwner(user.getId());
         itemRepository.save(item);
 
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentDto commentDto = new CommentDto();
         commentDto.setText("Test comment");
 
         assertThrows(BadRequestException.class, () -> itemService.createComment(commentDto, item.getId(), Long.MAX_VALUE));
@@ -232,7 +232,7 @@ public class ItemServiceImplIntegrationTest {
         b1.setItem(item);
         bookingRepository.save(b1);
 
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentDto commentDto = new CommentDto();
         commentDto.setText("");
 
         assertThrows(BadRequestException.class, () -> itemService.createComment(commentDto, item.getId(), user.getId()));
@@ -245,12 +245,14 @@ public class ItemServiceImplIntegrationTest {
         user.setEmail("john@example.com");
         User savedUser = userRepository.save(user);
 
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setName("Item 1");
         itemDto.setDescription("Description 1");
         itemDto.setAvailable(true);
 
-        ItemReplyDto savedItem = itemService.createItem(itemDto, savedUser.getId());
+
+        ItemDto savedItem = itemService.createItem(itemDto, savedUser.getId());
+
 
         assertNotNull(itemDto);
         assertEquals(itemDto.getName(), savedItem.getName());
@@ -263,12 +265,13 @@ public class ItemServiceImplIntegrationTest {
         user.setEmail("john@example.com");
         userRepository.save(user);
 
-        ItemReplyDto itemDto = new ItemReplyDto();
+        ItemDto itemDto = new ItemDto();
         itemDto.setName("Item 1");
         itemDto.setDescription("Description 1");
         itemDto.setAvailable(true);
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.createItem(itemDto, 1000L));
+
+        assertThrows(EntityNotFoundException.class, () -> itemService.createItem(itemDto, 1000));
     }
 
     @Test
@@ -305,7 +308,7 @@ public class ItemServiceImplIntegrationTest {
         commentRepository.save(comment2);
 
 
-        List<ItemReplyDto> items = itemService.getItems(savedUser.getId(), null, null);
+        List<ItemDto> items = itemService.getItems(savedUser.getId(), null, null);
 
         assertEquals(2, items.size());
         assertEquals(savedItem1.getId(), items.get(0).getId());
@@ -338,7 +341,7 @@ public class ItemServiceImplIntegrationTest {
         item2.setOwner(user.getId());
         itemRepository.save(item2);
 
-        List<ItemReplyDto> items = itemService.getItems(user.getId(), 0, 1);
+        List<ItemDto> items = itemService.getItems(user.getId(), 0, 1);
 
         assertNotNull(items);
         assertEquals(1, items.size());
@@ -397,7 +400,7 @@ public class ItemServiceImplIntegrationTest {
         nextBooking.setItem(item);
         bookingRepository.save(nextBooking);
 
-        ItemReplyDto itemDto = itemService.getItemDtoById(item.getId(), user.getId());
+        ItemDto itemDto = itemService.getItemDtoById(item.getId(), user.getId());
 
         assertNotNull(itemDto);
         assertEquals(item.getName(), itemDto.getName());
@@ -441,7 +444,7 @@ public class ItemServiceImplIntegrationTest {
         nextBooking.setItem(item);
         bookingRepository.save(nextBooking);
 
-        ItemReplyDto itemDto = itemService.getItemDtoById(item.getId(), user.getId());
+        ItemDto itemDto = itemService.getItemDtoById(item.getId(), user.getId());
 
         assertNotNull(itemDto);
         assertEquals(item.getName(), itemDto.getName());
