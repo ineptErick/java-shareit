@@ -110,7 +110,6 @@ public class ItemServiceImplIntegrationTest {
 
         ItemDto updatedItemDto = itemService.updateItem(itemDto, item.getId(), user.getId());
 
-
         assertEquals(itemDto.getDescription(), updatedItemDto.getDescription());
         assertEquals(updatedItemDto.getName(), item.getName());
     }
@@ -181,7 +180,6 @@ public class ItemServiceImplIntegrationTest {
         CommentDto commentDto = new CommentDto();
         commentDto.setText("Test comment");
 
-
         CommentDto createdComment = itemService.createComment(commentDto, item.getId(), user.getId());
 
         assertNotNull(createdComment);
@@ -250,9 +248,7 @@ public class ItemServiceImplIntegrationTest {
         itemDto.setDescription("Description 1");
         itemDto.setAvailable(true);
 
-
         ItemDto savedItem = itemService.createItem(itemDto, savedUser.getId());
-
 
         assertNotNull(itemDto);
         assertEquals(itemDto.getName(), savedItem.getName());
@@ -269,7 +265,6 @@ public class ItemServiceImplIntegrationTest {
         itemDto.setName("Item 1");
         itemDto.setDescription("Description 1");
         itemDto.setAvailable(true);
-
 
         assertThrows(EntityNotFoundException.class, () -> itemService.createItem(itemDto, 1000));
     }
@@ -306,7 +301,6 @@ public class ItemServiceImplIntegrationTest {
         comment2.setText("Comment 2");
         comment2.setItem(savedItem1);
         commentRepository.save(comment2);
-
 
         List<ItemDto> items = itemService.getItems(savedUser.getId(), null, null);
 
@@ -405,8 +399,8 @@ public class ItemServiceImplIntegrationTest {
         assertNotNull(itemDto);
         assertEquals(item.getName(), itemDto.getName());
         assertEquals(item.getDescription(), itemDto.getDescription());
-        assertEquals(lastBooking.getStart(), itemDto.getLastBooking().getBookingDate());
-        assertEquals(nextBooking.getStart(), itemDto.getNextBooking().getBookingDate());
+        assertEquals(lastBooking.getStart(), itemDto.getLastBooking().getStart());
+        assertEquals(nextBooking.getStart(), itemDto.getNextBooking().getStart());
     }
 
     @Test

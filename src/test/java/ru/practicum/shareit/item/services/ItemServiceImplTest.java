@@ -9,7 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.shareit.booking.model.BookingDate;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
 import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
@@ -462,35 +462,31 @@ class ItemServiceImplTest {
         Item item = new Item();
         item.setId(itemId);
         item.setOwner(userId);
-        BookingDate lastBookingDate = new BookingDate() {
+        Booking lastBookingDate = new Booking() {
             @Override
             public Long getId() {
                 return null;
             }
 
-            @Override
             public LocalDateTime getBookingDate() {
                 return lastBooking;
             }
 
-            @Override
             public Long getBookerId() {
                 return null;
             }
         };
 
-        BookingDate nextBookingDate = new BookingDate() {
+        Booking nextBookingDate = new Booking() {
             @Override
             public Long getId() {
                 return null;
             }
 
-            @Override
             public LocalDateTime getBookingDate() {
                 return nextBooking;
             }
 
-            @Override
             public Long getBookerId() {
                 return null;
             }
@@ -501,12 +497,10 @@ class ItemServiceImplTest {
         expectedDto.setLastBooking(lastBookingDate);
         expectedDto.setLastBooking(nextBookingDate);
 
-
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(modelMapper.map(item, ItemDto.class)).thenReturn(expectedDto);
         when(bookingRepository.findLastBooking(eq(itemId), any(LocalDateTime.class))).thenReturn(lastBookingDate);
         when(bookingRepository.findNextBooking(eq(itemId), any(LocalDateTime.class))).thenReturn(nextBookingDate);
-
 
         ItemDto actualDto = itemService.getItemDtoById(itemId, userId);
 
@@ -529,12 +523,10 @@ class ItemServiceImplTest {
         item.setDescription("text");
         item.setAvailable(true);
 
-
         ItemDto expectedDto = new ItemDto();
         expectedDto.setId(itemId);
         expectedDto.setDescription("text");
         expectedDto.setAvailable(true);
-
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(modelMapper.map(item, ItemDto.class)).thenReturn(expectedDto);

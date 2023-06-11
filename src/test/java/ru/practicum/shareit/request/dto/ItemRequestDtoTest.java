@@ -59,7 +59,6 @@ public class ItemRequestDtoTest {
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<ItemRequestDto>> constraintViolations = validator.validate(itemRequestDto);
 
-
         assertEquals(1, constraintViolations.size());
     }
 }

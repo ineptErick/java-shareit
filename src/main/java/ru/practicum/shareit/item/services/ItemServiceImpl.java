@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.model.BookingDate;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
 import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
@@ -172,13 +172,13 @@ public class ItemServiceImpl implements ItemService {
         List<Long> itemsId = items.stream()
                 .map(ItemDto::getId).collect(Collectors.toList());
 
-        List<BookingDate> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now());
+        List<Booking> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now());
         if (!allNextBooking.isEmpty()) {
             for (int i = 0; i < allNextBooking.size(); i++) {
                 items.get(i).setNextBooking(allNextBooking.get(i));
             }
         }
-        List<BookingDate> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now());
+        List<Booking> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now());
         if (!allLastBooking.isEmpty()) {
             for (int i = 0; i < allLastBooking.size(); i++) {
                 items.get(i).setLastBooking(allLastBooking.get(i));

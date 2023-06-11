@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.booking.model.BookingDate;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.user.dto.Create;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -11,15 +12,15 @@ import java.util.Set;
 @Data
 public class ItemDto {
     private Long id;
-    @NotBlank
+    @NotBlank(groups = {Create.class})
     private String name;
-    @NotBlank
+    @NotBlank(groups = {Create.class})
     private String description;
-    @NotNull
+    @NotNull(groups = {Create.class})
     private Boolean available;
 
-    private BookingDate lastBooking;
-    private BookingDate nextBooking;
+    private Booking lastBooking;
+    private Booking nextBooking;
 
     private Set<Comment> comments;
 

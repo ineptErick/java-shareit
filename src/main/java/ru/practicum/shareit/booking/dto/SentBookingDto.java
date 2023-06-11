@@ -14,11 +14,14 @@ public class SentBookingDto {
     private User booker;
     private Item item;
 
+    // комментарий: зачем мы тут наследуемся от моделей? Это вспомогательные дто
+    // ответ: сейчас удалила наследование, если с наследованием спринт не пройдет, то придется отрефакторить половину кода
+
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class User extends ru.practicum.shareit.user.model.User {
+    public static class User {
         private Long id;
         private String name;
     }
@@ -27,7 +30,7 @@ public class SentBookingDto {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Item extends ru.practicum.shareit.item.model.Item {
+    public static class Item {
         private Long id;
         private String name;
     }

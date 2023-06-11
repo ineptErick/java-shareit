@@ -4,9 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -41,17 +42,16 @@ public class Item {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+
         if (o == null || getClass() != o.getClass()) return false;
+
         Item item = (Item) o;
-        return Objects.equals(id, item.id) &&
-                Objects.equals(name, item.name) &&
-                Objects.equals(description, item.description) &&
-                Objects.equals(available, item.available) &&
-                Objects.equals(owner, item.owner);
+
+        return new EqualsBuilder().append(id, item.id).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, available, owner);
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 }

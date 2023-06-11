@@ -50,13 +50,11 @@ public class UserServiceImplTest {
         updatedUser.setName(userDto.getName());
         updatedUser.setEmail(userDto.getEmail());
 
-
         when(userRepository.existsById(userId)).thenReturn(true);
         when(userRepository.findByEmail(updatedUserDto.getEmail())).thenReturn(Optional.of(user));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(updatedUser)).thenReturn(updatedUser);
         when(modelMapper.map(updatedUser, UserDto.class)).thenReturn(userDto);
-
 
         UserDto actualUser = userService.updateUser(updatedUserDto, userId);
 
@@ -86,13 +84,11 @@ public class UserServiceImplTest {
         updatedUser.setName(userDto.getName());
         updatedUser.setEmail(userDto.getEmail());
 
-
         when(userRepository.existsById(userId)).thenReturn(true);
         when(userRepository.findByEmail(updatedUserDto.getEmail())).thenReturn(Optional.of(user));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(updatedUser)).thenReturn(updatedUser);
         when(modelMapper.map(updatedUser, UserDto.class)).thenReturn(userDto);
-
 
         UserDto actualUser = userService.updateUser(updatedUserDto, userId);
 
@@ -131,7 +127,6 @@ public class UserServiceImplTest {
         updatUserDto.setEmail("jane@example.com");
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.findByEmail(updatUserDto.getEmail())).thenReturn(Optional.of(existingUser1));
-
 
         final AlreadyUsedEmailException exception = assertThrows(AlreadyUsedEmailException.class,
                 () -> userService.updateUser(updatUserDto, userId));

@@ -13,8 +13,8 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
 import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.services.ItemService;
-import ru.practicum.shareit.booking.dto.SentBookingDto.Item;
-import ru.practicum.shareit.booking.dto.SentBookingDto.User;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.services.UserService;
 import ru.practicum.shareit.util.BookingStatus;
 
@@ -52,7 +52,14 @@ public class BookingServiceImplTest {
         booking.setBooker(user);
         SentBookingDto bookingDto = new SentBookingDto();
         bookingDto.setId(BOOKING_ID);
-        bookingDto.setBooker(user);
+        SentBookingDto.User usr = new SentBookingDto.User();
+
+        // в одних методах нужны юзеры из дто класса, а в других из юзер класса
+        // поэтому изначально наследовала одних юзеров от других
+        // потом убрала наследование и добавила вот такое:
+        usr.setName(user.getName());
+        usr.setId(user.getId());
+        bookingDto.setBooker(usr);
 
         when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
         when(modelMapper.map(booking, SentBookingDto.class)).thenReturn(bookingDto);
@@ -425,11 +432,9 @@ public class BookingServiceImplTest {
         booking.setEnd(bookingDto.getEnd());
         booking.setStart(bookingDto.getStart());
 
-
         when(itemService.getItemById(bookingDto.getItemId())).thenReturn(item);
         when(userService.getUserById(userId)).thenReturn(user);
         when(modelMapper.map(bookingDto, Booking.class)).thenReturn(booking);
-
 
         bookingService.createBooking(bookingDto, userId);
 
@@ -453,7 +458,15 @@ public class BookingServiceImplTest {
 
         SentBookingDto updatedBooking = new SentBookingDto();
         updatedBooking.setId(bookingId);
-        updatedBooking.setItem(item);
+
+        // в одних методах нужны юзеры из дто класса, а в других из юзер класса
+        // поэтому изначально наследовала одних юзеров от других
+        // потом убрала наследование и добавила вот такое:
+        SentBookingDto.Item itm = new SentBookingDto.Item();
+        itm.setName(item.getName());
+        itm.setId(item.getId());
+
+        updatedBooking.setItem(itm);
         updatedBooking.setStatus(BookingStatus.APPROVED);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
@@ -484,7 +497,14 @@ public class BookingServiceImplTest {
 
         SentBookingDto updatedBooking = new SentBookingDto();
         updatedBooking.setId(bookingId);
-        updatedBooking.setItem(item);
+
+        // в одних методах нужны юзеры из дто класса, а в других из юзер класса
+        // поэтому изначально наследовала одних юзеров от других
+        // потом убрала наследование и добавила вот такое:
+        SentBookingDto.Item itm = new SentBookingDto.Item();
+        itm.setId(item.getId());
+        itm.setName(item.getName());
+        updatedBooking.setItem(itm);
         updatedBooking.setStatus(BookingStatus.REJECTED);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));

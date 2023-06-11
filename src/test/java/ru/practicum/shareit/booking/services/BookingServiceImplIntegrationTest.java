@@ -241,7 +241,6 @@ public class BookingServiceImplIntegrationTest {
 
         SentBookingDto updatedBooking = bookingService.updateBookingStatus(b1.getId(), newStatus, user.getId());
 
-
         assertEquals(BookingStatus.APPROVED, updatedBooking.getStatus());
     }
 
@@ -277,7 +276,6 @@ public class BookingServiceImplIntegrationTest {
         String newStatus = "false";
 
         SentBookingDto updatedBooking = bookingService.updateBookingStatus(b1.getId(), newStatus, user.getId());
-
 
         assertEquals(BookingStatus.REJECTED, updatedBooking.getStatus());
     }

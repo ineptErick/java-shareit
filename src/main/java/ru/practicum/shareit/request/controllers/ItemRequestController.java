@@ -1,11 +1,14 @@
 package ru.practicum.shareit.request.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.services.ItemRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -32,9 +35,10 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
+    @Validated
     public List<ItemRequestDto> getUserRequests(@RequestHeader(value = USER_ID) long userId,
-                                                @RequestParam(name = "from", required = false) Integer from,
-                                                @RequestParam(name = "size", required = false) Integer size) {
+                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         return requestService.getUserRequests(userId, from, size);
     }
 
