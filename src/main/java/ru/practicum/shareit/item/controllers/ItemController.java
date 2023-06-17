@@ -40,8 +40,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItemsByText( // @RequestHeader("X-Sharer-User-Id") long userId,
-                                           @RequestParam(name = "text") String text
+    public List<ItemDto> searchItemsByText( @RequestParam(name = "text") String text
                                            // @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                            // @Positive @RequestParam(name = "size", defaultValue = "10") Integer size
                                             ) {
@@ -49,8 +48,7 @@ public class ItemController {
     }
 
     @PostMapping()
-    public ItemDto createItem( // @RequestHeader("X-Sharer-User-Id") long userId,
-                               @RequestHeader(value = USER_ID) long userId,
+    public ItemDto createItem( @RequestHeader(value = USER_ID) long userId,
                                @RequestBody @Validated(Create.class) ItemDto item) {
        log.info("Update item by userId={} item={}", userId, item);
         return itemService.createItem(item, userId);
@@ -65,7 +63,6 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable long itemId,
-                              // @RequestHeader("X-Sharer-User-Id") long userId,
                               @RequestHeader(value = USER_ID) long userId,
                               @RequestBody @Validated(Update.class) ItemDto item
                               // входящие дто для создания и обновления следует валидировать, при чем по разному.
