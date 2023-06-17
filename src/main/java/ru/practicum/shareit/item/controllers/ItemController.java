@@ -26,7 +26,6 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable long itemId,
                                @RequestHeader(value = USER_ID) long userId) {
@@ -41,21 +40,19 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItemsByText(@RequestHeader("X-Sharer-User-Id") long userId,
-                                           @RequestParam(name = "text") String text,
-                                           @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                           @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+    public List<ItemDto> searchItemsByText( // @RequestHeader("X-Sharer-User-Id") long userId,
+                                           @RequestParam(name = "text") String text
+                                           // @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                           // @Positive @RequestParam(name = "size", defaultValue = "10") Integer size
+                                            ) {
         return itemService.searchItemByText(text);
     }
 
     @PostMapping()
-    public ItemDto createItem(@PathVariable long itemId,
-                              @RequestHeader("X-Sharer-User-Id") long userId,
-                              @RequestBody @Validated(Create.class) ItemDto item) {
-        // нужно валидация дто по примеру с обновлением
-        // - done?
-        item.setId(itemId);
-        log.info("Update item by userId={} item={}", userId, item);
+    public ItemDto createItem( // @RequestHeader("X-Sharer-User-Id") long userId,
+                               @RequestHeader(value = USER_ID) long userId,
+                               @RequestBody @Validated(Create.class) ItemDto item) {
+       log.info("Update item by userId={} item={}", userId, item);
         return itemService.createItem(item, userId);
     }
 
@@ -68,7 +65,8 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable long itemId,
-                              @RequestHeader("X-Sharer-User-Id") long userId,
+                              // @RequestHeader("X-Sharer-User-Id") long userId,
+                              @RequestHeader(value = USER_ID) long userId,
                               @RequestBody @Validated(Update.class) ItemDto item
                               // входящие дто для создания и обновления следует валидировать, при чем по разному.
                               // Для этого были написаны интерфейсы маркеры, которые нужно применить.

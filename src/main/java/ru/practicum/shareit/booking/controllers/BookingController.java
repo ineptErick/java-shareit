@@ -36,8 +36,7 @@ public class BookingController {
                                                    @RequestParam(name = "state", defaultValue = "ALL")
                                                    String state) {
         // комментарий: в обоих методах входящий state необходимо проверить на соответствие с существующими и бросить исключение
-        // ответ: в сервисе уже прописана проверка и выброс эксепшена,
-        // могу вынести его из сервиса в контроллер или необходимо прописать кастомную валидацию?
+        // ответ: в сервисе уже прописана проверка и выброс эксепшена
         return bookingService.getAllUserBookings(userId, state, "USER", from, size);
     }
 
@@ -49,8 +48,7 @@ public class BookingController {
                                                     @RequestParam(name = "state",
                                                             required = false, defaultValue = "ALL") String state) {
         // комментарий: в обоих методах входящий state необходимо проверить на соответствие с существующими и бросить исключение
-        // ответ: в сервисе уже прописана проверка и выброс эксепшена,
-        // могу вынести его из сервиса в контроллер или необходимо прописать кастомную валидацию?
+        // ответ: в сервисе уже прописана проверка и выброс эксепшена
         return bookingService.getAllUserBookings(userId, state, "OWNER", from, size);
     }
 

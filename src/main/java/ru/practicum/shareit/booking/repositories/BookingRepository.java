@@ -57,12 +57,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "ORDER BY b.start DESC")
     Slice<Booking> findAllOwnerBookingsByState(@Param("ownerId") Long ownerId, @Param("state") String state, Pageable pageable);
 
-    @Query(value = "SELECT b.id, b.start_date AS bookingDate, b.booker_id AS bookerId " +
+    @Query(value = "SELECT * " +
             "FROM bookings b WHERE b.item_id = ?1 AND b.start_date < ?2 " +
             "ORDER BY b.start_date DESC LIMIT 1", nativeQuery = true)
     Booking findLastBooking(Long itemId, LocalDateTime currentTime);
 
-    @Query(value = "SELECT b.id, b.start_date AS bookingDate, b.booker_id AS bookerId " +
+    @Query(value = "SELECT * " +
             "FROM bookings b WHERE b.item_id = ?1 AND b.start_date > ?2 AND NOT b.status = 'REJECTED'" +
             "ORDER BY b.start_date LIMIT 1", nativeQuery = true)
     Booking findNextBooking(Long itemId, LocalDateTime currentTime);
@@ -77,7 +77,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // репозиторий должен работать только со своей моделью, в данном случае Booking
     // done
 
-    @Query(value = "SELECT b.id, b.start_date AS bookingDate, b.booker_id AS bookerId " +
+    @Query(value = "SELECT * " +
             "FROM bookings b WHERE b.item_id IN (?1) AND b.start_date < ?2 " +
             "ORDER BY b.start_date DESC LIMIT 1", nativeQuery = true)
     List<Booking> findAllLastBooking(List<Long> itemsId, LocalDateTime currentTime);
