@@ -189,7 +189,7 @@ public class ItemServiceImpl implements ItemService {
 
     private BookingDto mapEntityToDto(Booking entity) {
         if (Objects.isNull(entity)) {
-           return null;
+            return null;
         }
 
         BookingDto dto = new BookingDto();

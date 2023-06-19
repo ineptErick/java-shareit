@@ -40,17 +40,17 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItemsByText( @RequestParam(name = "text") String text
+    public List<ItemDto> searchItemsByText(@RequestParam(name = "text") String text
                                            // @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                            // @Positive @RequestParam(name = "size", defaultValue = "10") Integer size
-                                            ) {
+    ) {
         return itemService.searchItemByText(text);
     }
 
     @PostMapping()
-    public ItemDto createItem( @RequestHeader(value = USER_ID) long userId,
-                               @RequestBody @Validated(Create.class) ItemDto item) {
-       log.info("Update item by userId={} item={}", userId, item);
+    public ItemDto createItem(@RequestHeader(value = USER_ID) long userId,
+                              @RequestBody @Validated(Create.class) ItemDto item) {
+        log.info("Update item by userId={} item={}", userId, item);
         return itemService.createItem(item, userId);
     }
 
@@ -65,7 +65,7 @@ public class ItemController {
     public ItemDto updateItem(@PathVariable long itemId,
                               @RequestHeader(value = USER_ID) long userId,
                               @RequestBody @Validated(Update.class) ItemDto item
-                              ) {
+    ) {
         item.setId(itemId);
         log.info("Update item by userId={} item={}", userId, item);
         return itemService.updateItem(item, itemId, userId);
