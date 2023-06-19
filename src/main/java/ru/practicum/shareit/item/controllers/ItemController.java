@@ -65,9 +65,6 @@ public class ItemController {
     public ItemDto updateItem(@PathVariable long itemId,
                               @RequestHeader(value = USER_ID) long userId,
                               @RequestBody @Validated(Update.class) ItemDto item
-                              // входящие дто для создания и обновления следует валидировать, при чем по разному.
-                              // Для этого были написаны интерфейсы маркеры, которые нужно применить.
-                              // - done?
                               ) {
         item.setId(itemId);
         log.info("Update item by userId={} item={}", userId, item);

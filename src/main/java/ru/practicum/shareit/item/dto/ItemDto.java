@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.user.dto.Create;
 
@@ -19,8 +18,8 @@ public class ItemDto {
     @NotNull(groups = {Create.class})
     private Boolean available;
 
-    private Booking lastBooking;
-    private Booking nextBooking;
+    private BookingDto lastBooking;
+    private BookingDto nextBooking;
 
     private Set<Comment> comments;
 

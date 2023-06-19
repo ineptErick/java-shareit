@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.repositories.BookingRepository;
 import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.InappropriateUserException;
+import ru.practicum.shareit.item.dto.BookingDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.repositories.CommentRepository;
@@ -47,8 +48,8 @@ public class ItemServiceImpl implements ItemService {
         item.getComments();
         ItemDto dto = convertItemToDto(item);
         if (item.getOwner() == userId) {
-            dto.setLastBooking(bookingRepository.findLastBooking(itemId, LocalDateTime.now()));
-            dto.setNextBooking(bookingRepository.findNextBooking(itemId, LocalDateTime.now()));
+            dto.setLastBooking(mapEntityToDto(bookingRepository.findLastBooking(itemId, LocalDateTime.now())));
+            dto.setNextBooking(mapEntityToDto(bookingRepository.findNextBooking(itemId, LocalDateTime.now())));
         }
         return dto;
     }
@@ -175,15 +176,32 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> allNextBooking = bookingRepository.findAllNextBooking(itemsId, LocalDateTime.now());
         if (!allNextBooking.isEmpty()) {
             for (int i = 0; i < allNextBooking.size(); i++) {
-                items.get(i).setNextBooking(allNextBooking.get(i));
+                items.get(i).setNextBooking(mapEntityToDto(allNextBooking.get(i)));
             }
         }
         List<Booking> allLastBooking = bookingRepository.findAllLastBooking(itemsId, LocalDateTime.now());
         if (!allLastBooking.isEmpty()) {
             for (int i = 0; i < allLastBooking.size(); i++) {
-                items.get(i).setLastBooking(allLastBooking.get(i));
+                items.get(i).setLastBooking(mapEntityToDto(allLastBooking.get(i)));
             }
         }
+    }
+
+    private BookingDto mapEntityToDto(Booking entity) {
+        if (Objects.isNull(entity)) {
+           return null;
+        }
+
+        BookingDto dto = new BookingDto();
+        dto.setId(entity.getId());
+        dto.setEnd(entity.getEnd());
+        dto.setStatus(entity.getStatus());
+        dto.setStart(entity.getStart());
+        if (Objects.nonNull(entity.getBooker())) {
+            dto.setBookerId(entity.getBooker().getId());
+        }
+
+        return dto;
     }
 }
 
