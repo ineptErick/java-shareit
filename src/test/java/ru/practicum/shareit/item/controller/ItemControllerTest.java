@@ -76,7 +76,7 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(ITEM_ID)))
                 .andExpect(jsonPath("$[0].name", is("Test item 1")))
-                .andExpect(jsonPath("$[1].id", is( ITEM_ID + 1L)))
+                .andExpect(jsonPath("$[1].id", is(ITEM_ID + 1L)))
                 .andExpect(jsonPath("$[1].name", is("Test item 2")));
     }
 
@@ -99,7 +99,7 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(ITEM_ID)))
                 .andExpect(jsonPath("$[0].name", is("Test item 1")))
-                .andExpect(jsonPath("$[1].id", is( ITEM_ID + 1L)))
+                .andExpect(jsonPath("$[1].id", is(ITEM_ID + 1L)))
                 .andExpect(jsonPath("$[1].name", is("Test item 2")));
     }
 
