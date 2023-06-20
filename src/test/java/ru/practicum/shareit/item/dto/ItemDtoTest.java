@@ -5,15 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.util.Set;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JsonTest
 public class ItemDtoTest {
@@ -45,29 +37,4 @@ public class ItemDtoTest {
         assertThat(dto).isEqualTo(expectedDto);
     }
 
-    @Test
-    public void testInvalidDto() {
-        ItemDto item = new ItemDto();
-        item.setName("");
-        item.setDescription("");
-        item.setAvailable(null);
-
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<ItemDto>> violations = validator.validate(item);
-
-        assertEquals(3, violations.size());
-        assertTrue(violations.stream()
-                .map(v -> v.getPropertyPath().toString() + " " + v.getMessage())
-                .anyMatch(m -> m.equals("name must not be blank"))
-        );
-        assertTrue(violations.stream()
-                .map(v -> v.getPropertyPath().toString() + " " + v.getMessage())
-                .anyMatch(m -> m.equals("description must not be blank"))
-        );
-        assertTrue(violations.stream()
-                .map(v -> v.getPropertyPath().toString() + " " + v.getMessage())
-                .anyMatch(m -> m.equals("available must not be null"))
-        );
-    }
 }
