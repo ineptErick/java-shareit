@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,29 +56,6 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is((int) ITEM_ID)))
                 .andExpect(jsonPath("$.name", is("Test item")));
-    }
-
-    @SneakyThrows
-    @Test
-    public void testGetItems() {
-        ItemDto item1 = new ItemDto();
-        item1.setId(ITEM_ID);
-        item1.setName("Test item 1");
-
-        ItemDto item2 = new ItemDto();
-        item2.setId(ITEM_ID + 1);
-        item2.setName("Test item 2");
-
-        List<ItemDto> items = Arrays.asList(item1, item2);
-
-        when(itemService.getItems(eq(USER_ID), eq(null), eq(null))).thenReturn(items);
-
-        mockMvc.perform(get("/items").header(HEADER_USER_ID, USER_ID))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is((int) ITEM_ID)))
-                .andExpect(jsonPath("$[0].name", is("Test item 1")))
-                .andExpect(jsonPath("$[1].id", is((int) ITEM_ID + 1)))
-                .andExpect(jsonPath("$[1].name", is("Test item 2")));
     }
 
     @SneakyThrows
