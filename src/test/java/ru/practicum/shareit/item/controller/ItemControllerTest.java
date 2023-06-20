@@ -39,8 +39,8 @@ public class ItemControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final long USER_ID = 1L;
-    private static final long ITEM_ID = 2L;
+    private static final long USER_ID = 1;
+    private static final long ITEM_ID = 2;
 
     @SneakyThrows
     @Test
@@ -53,7 +53,7 @@ public class ItemControllerTest {
 
         mockMvc.perform(get("/items/" + ITEM_ID).header(HEADER_USER_ID, USER_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is((long) ITEM_ID)))
+                .andExpect(jsonPath("$.id", is((int) ITEM_ID)))
                 .andExpect(jsonPath("$.name", is("Test item")));
     }
 
@@ -74,9 +74,9 @@ public class ItemControllerTest {
 
         mockMvc.perform(get("/items").header(HEADER_USER_ID, USER_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is((long) ITEM_ID)))
+                .andExpect(jsonPath("$[0].id", is((int) ITEM_ID)))
                 .andExpect(jsonPath("$[0].name", is("Test item 1")))
-                .andExpect(jsonPath("$[1].id", is((long) ITEM_ID + 1)))
+                .andExpect(jsonPath("$[1].id", is((int) ITEM_ID + 1)))
                 .andExpect(jsonPath("$[1].name", is("Test item 2")));
     }
 
@@ -97,9 +97,9 @@ public class ItemControllerTest {
 
         mockMvc.perform(get("/items/search").param("text", "test"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is((long) ITEM_ID)))
+                .andExpect(jsonPath("$[0].id", is((int) ITEM_ID)))
                 .andExpect(jsonPath("$[0].name", is("Test item 1")))
-                .andExpect(jsonPath("$[1].id", is((long) ITEM_ID + 1)))
+                .andExpect(jsonPath("$[1].id", is((int) ITEM_ID + 1)))
                 .andExpect(jsonPath("$[1].name", is("Test item 2")));
     }
 
