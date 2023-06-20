@@ -16,6 +16,7 @@ import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.InappropriateUserException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.BookingDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repositories.CommentRepository;
@@ -494,8 +495,10 @@ class ItemServiceImplTest {
 
         ItemDto expectedDto = new ItemDto();
         expectedDto.setId(itemId);
-        expectedDto.setLastBooking(lastBookingDate);
-        expectedDto.setLastBooking(nextBookingDate);
+        BookingDto lastBookingDateDto = ItemServiceImpl.mapEntityToDto(lastBookingDate);
+        expectedDto.setLastBooking(lastBookingDateDto);
+        BookingDto nextBookingDateDto = ItemServiceImpl.mapEntityToDto(nextBookingDate);
+        expectedDto.setLastBooking(nextBookingDateDto);
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(modelMapper.map(item, ItemDto.class)).thenReturn(expectedDto);

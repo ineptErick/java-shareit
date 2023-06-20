@@ -187,7 +187,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private BookingDto mapEntityToDto(Booking entity) {
+    public static BookingDto mapEntityToDto(Booking entity) {
         if (Objects.isNull(entity)) {
             return null;
         }
