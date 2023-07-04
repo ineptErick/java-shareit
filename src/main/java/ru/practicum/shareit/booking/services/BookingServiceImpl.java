@@ -1,8 +1,9 @@
 package ru.practicum.shareit.booking.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.ReceivedBookingDto;
@@ -16,13 +17,12 @@ import ru.practicum.shareit.user.services.UserService;
 import ru.practicum.shareit.util.BookingState;
 import ru.practicum.shareit.util.BookingStatus;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
 @Service
-@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemService itemService;
@@ -53,16 +53,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional(readOnly = true)
-    public List<SentBookingDto> getAllUserBookings(long userId, String state, String userType) {
+    public List<SentBookingDto> getAllUserBookings(long userId, String state, String userType, Integer from, Integer size) {
         if (Arrays.stream(BookingState.values()).noneMatch(enumState -> enumState.name().equals(state))) {
-            log.debug("booking not found for user {}", userId);
-            throw new UnsupportedStatusException("Unknown state: " + state);
+            throw new UnsupportedStatusException("Unknown state");
         }
         userService.isExistUser(userId);
-        List<Booking> userBookings = userType.equals(USER)
-                ? bookingRepository.findAllUserBookingsByState(userId, state)
-                : bookingRepository.findAllOwnerBookingsByState(userId, state);
-        return convertListBookingToDto(userBookings);
+        List<Booking> bookings = (from == null && size == null)
+                ? getAllUserBookingsWithoutPagination(userId, state, userType)
+                : getAllUserBookingsWithPagination(userId, state, userType, from, size);
+        return convertListBookingToDto(bookings);
     }
 
     @Transactional
@@ -79,15 +78,19 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public SentBookingDto updateBookingStatus(long bookingId, String approved, long userId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found: " + bookingId));
         isValidUpdateBookingStatusRequest(booking, userId, bookingId);
         setBookingStatus(booking, approved);
         return convertBookingToDto(bookingRepository.save(booking));
     }
 
     private void isValidBookingTimeRequest(ReceivedBookingDto bookingDto) {
-        if (
-                bookingDto.getStart().compareTo(bookingDto.getEnd()) >= 0) {
+        if (bookingDto.getStart() == null ||
+                bookingDto.getEnd() == null ||
+                (LocalDateTime.now().isAfter(bookingDto.getStart())) ||
+                bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
+                bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
+                bookingDto.getStart().isEqual(bookingDto.getEnd())) {
             throw new BadRequestException("Not valid fields");
         }
     }
@@ -108,6 +111,30 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {
             throw new BookingStatusAlreadySetException("Booking status already set: " + bookingId);
         }
+    }
+
+    private List<Booking> getAllUserBookingsWithPagination(long userId, String state, String userType, Integer from, Integer size) {
+        if ((from == 0 && size == 0) || (from < 0 || size < 0)) {
+            throw new BadRequestException("Request without pagination");
+        }
+        PageRequest pageRequest = PageRequest.of(from, size);
+        Slice<Booking> bookingsSlice = getBookingSlice(userId, state, userType, pageRequest);
+        while (!bookingsSlice.hasContent() && bookingsSlice.getNumber() > 0) {
+            bookingsSlice = getBookingSlice(userId, state, userType, PageRequest.of(bookingsSlice.getNumber() - 1, bookingsSlice.getSize(), bookingsSlice.getSort()));
+        }
+        return bookingsSlice.toList();
+    }
+
+    private Slice<Booking> getBookingSlice(long userId, String state, String userType, PageRequest pageRequest) {
+        return userType.equals(USER)
+                ? bookingRepository.findAllUserBookingsByState(userId, state, pageRequest)
+                : bookingRepository.findAllOwnerBookingsByState(userId, state, pageRequest);
+    }
+
+    private List<Booking> getAllUserBookingsWithoutPagination(long userId, String state, String userType) {
+        return userType.equals(USER)
+                ? bookingRepository.findAllUserBookingsByState(userId, state)
+                : bookingRepository.findAllOwnerBookingsByState(userId, state);
     }
 
     private void setBookingStatus(Booking booking, String approved) {

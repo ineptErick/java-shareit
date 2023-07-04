@@ -1,24 +1,26 @@
 package ru.practicum.shareit.booking.controllers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.SentBookingDto;
 import ru.practicum.shareit.booking.dto.ReceivedBookingDto;
 import ru.practicum.shareit.booking.services.BookingService;
-import ru.practicum.shareit.user.dto.Create;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/bookings")
-@Slf4j
-@Validated
 public class BookingController {
     private static final String USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
+
+    @Autowired
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
 
     @GetMapping("/{bookingId}")
     public SentBookingDto getBooking(@PathVariable long bookingId,
@@ -27,22 +29,31 @@ public class BookingController {
     }
 
     @GetMapping()
+    @Validated
     public List<SentBookingDto> getAllUserBookings(@RequestHeader(value = USER_ID) long userId,
-                                                   @RequestParam(name = "state",
-                                                           defaultValue = "ALL") String state) {
-        return bookingService.getAllUserBookings(userId, state, "USER");
+                                                   @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                   @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
+                                                   @RequestParam(name = "state", defaultValue = "ALL")
+                                                   String state) {
+        // комментарий: в обоих методах входящий state необходимо проверить на соответствие с существующими и бросить исключение
+        // ответ: в сервисе уже прописана проверка и выброс эксепшена
+        return bookingService.getAllUserBookings(userId, state, "USER", from, size);
     }
 
     @GetMapping("/owner")
+    @Validated
     public List<SentBookingDto> getAllOwnerBookings(@RequestHeader(value = USER_ID) long userId,
+                                                    @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                    @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
                                                     @RequestParam(name = "state",
-                                                            defaultValue = "ALL") String state) {
-        return bookingService.getAllUserBookings(userId, state, "OWNER");
+                                                            required = false, defaultValue = "ALL") String state) {
+        // комментарий: в обоих методах входящий state необходимо проверить на соответствие с существующими и бросить исключение
+        // ответ: в сервисе уже прописана проверка и выброс эксепшена
+        return bookingService.getAllUserBookings(userId, state, "OWNER", from, size);
     }
 
     @PostMapping()
-    public SentBookingDto createBooking(@Validated(Create.class)
-                                        @RequestBody ReceivedBookingDto bookingDto,
+    public SentBookingDto createBooking(@RequestBody ReceivedBookingDto bookingDto,
                                         @RequestHeader(value = USER_ID) long userId) {
         return bookingService.createBooking(bookingDto, userId);
     }

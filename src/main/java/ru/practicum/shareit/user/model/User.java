@@ -26,7 +26,6 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

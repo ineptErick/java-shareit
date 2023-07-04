@@ -1,16 +1,20 @@
 package ru.practicum.shareit.item.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemReplyDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.services.ItemService;
-import ru.practicum.shareit.item.dto.ItemCreationDto;
+import ru.practicum.shareit.user.dto.Create;
+import ru.practicum.shareit.user.dto.Update;
 
-import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/items")
 public class ItemController {
@@ -23,41 +27,48 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemReplyDto getItemById(@PathVariable long itemId,
-                                    @RequestHeader(value = USER_ID) long userId) {
+    public ItemDto getItemById(@PathVariable long itemId,
+                               @RequestHeader(value = USER_ID) long userId) {
         return itemService.getItemDtoById(itemId, userId);
     }
 
     @GetMapping()
-    public List<ItemReplyDto> getItems(@RequestHeader(value = USER_ID) long userId) {
-        return itemService.getItems(userId);
+    public List<ItemDto> getItems(@RequestHeader(value = USER_ID) long userId,
+                                  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                  @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        return itemService.getItems(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemReplyDto> searchItemsByText(@RequestParam String text) {
+    public List<ItemDto> searchItemsByText(@RequestParam(name = "text") String text
+                                           // @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                           // @Positive @RequestParam(name = "size", defaultValue = "10") Integer size
+    ) {
         return itemService.searchItemByText(text);
     }
 
     @PostMapping()
-    public ItemReplyDto createItem(@RequestHeader(value = USER_ID) long userId,
-                                   @Valid @RequestBody ItemCreationDto itemCreationDto) {
-        return itemService.createItem(itemCreationDto, userId);
+    public ItemDto createItem(@RequestHeader(value = USER_ID) long userId,
+                              @RequestBody @Validated(Create.class) ItemDto item) {
+        log.info("Update item by userId={} item={}", userId, item);
+        return itemService.createItem(item, userId);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
-                                    // Здесь в качестве параметра метода соответственно будет использоваться CommentRequestDto
-                                    // - done
+    public CommentDto createComment(@RequestBody CommentDto commentDto,
                                     @PathVariable long itemId,
                                     @RequestHeader(value = USER_ID) long userId) {
-        return itemService.createComment(commentRequestDto, itemId, userId);
+        return itemService.createComment(commentDto, itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemReplyDto updateItem(@PathVariable long itemId,
-                                   @RequestBody ItemCreationDto itemCreationDto,
-                                   @RequestHeader(value = USER_ID) long userId) {
-        return itemService.updateItem(itemCreationDto, itemId, userId);
+    public ItemDto updateItem(@PathVariable long itemId,
+                              @RequestHeader(value = USER_ID) long userId,
+                              @RequestBody @Validated(Update.class) ItemDto item
+    ) {
+        item.setId(itemId);
+        log.info("Update item by userId={} item={}", userId, item);
+        return itemService.updateItem(item, itemId, userId);
     }
 
     @DeleteMapping("/{id}")
