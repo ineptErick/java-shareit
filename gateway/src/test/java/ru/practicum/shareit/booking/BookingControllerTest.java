@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.dto.BookingIncomeDto;
-import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.util.BookingDto;
 import ru.practicum.shareit.util.BookingStatus;
 
