@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Getter
 public class BookingIncomeDto {
+
     private Long itemId;
     private final LocalDateTime start;
     private final LocalDateTime end;

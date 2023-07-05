@@ -15,7 +15,6 @@ import java.util.Map;
 
 import static ru.practicum.shareit.booking.BookingState.UNSUPPORTED_STATUS;
 
-
 @Service
 @Slf4j
 public class BookingClient extends BaseClient {
