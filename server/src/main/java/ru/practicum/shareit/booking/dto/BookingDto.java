@@ -1,43 +1,30 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.istack.NotNull;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.item.dto.ItemBookingDto;
+import ru.practicum.shareit.user.dto.UserBookingDto;
 
 import java.time.LocalDateTime;
 
-@Builder(toBuilder = true)
-@Getter
+@Data
+@RequiredArgsConstructor
 public class BookingDto {
+    private Long id;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private UserBookingDto booker;
+    private String status;
+    private ItemBookingDto item;
 
-    @NotNull
-    private final Long id;
-    private final LocalDateTime start;
-    private final LocalDateTime end;
-    private final ShortItemDto item;
-    private final ShortBookerDto booker;
-    private BookingStatus status;
 
-    @RequiredArgsConstructor
-    @Getter
-    public static class ShortBookerDto {
-        @NotNull
-        @JsonProperty(value = "id")
-        private final long bookerId;
-        @JsonProperty(value = "name")
-        private final String bookerName;
-    }
-
-    @RequiredArgsConstructor
-    @Getter
-    public static class ShortItemDto {
-        @NotNull
-        @JsonProperty(value = "id")
-        private final long itemId;
-        @JsonProperty(value = "name")
-        private final String itemName;
+    public BookingDto(Long bookingId, LocalDateTime start, LocalDateTime end, String status, Long bookerId,
+                       Long itemId, String itemName) {
+        this.id = bookingId;
+        this.start = start;
+        this.end = end;
+        this.booker = new UserBookingDto(bookerId);
+        this.status = status;
+        this.item = new ItemBookingDto(itemId, itemName);
     }
 }

@@ -1,22 +1,25 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
-import ru.practicum.shareit.user.dto.UserDto;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.booking.dto.BookingInfoDto;
+import ru.practicum.shareit.item.comment.CommentDto;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Builder(toBuilder = true)
-@Getter
+@Data
+@RequiredArgsConstructor
 public class ItemDto {
     private Long id;
-    private final String name;
-    private final String description;
-    private final Boolean available;
-    private final UserDto owner;
-    private final BookingShortDto lastBooking;
-    private final BookingShortDto nextBooking;
-    private final List<CommentDto> comments;
-    private final Long requestId;
+    private String name;
+    private String description;
+    private Boolean available;
+    private LocalDateTime lastBookingDate;
+    private LocalDateTime nextBookingDate;
+    private BookingInfoDto lastBooking;
+    private BookingInfoDto nextBooking;
+    private Long requestId;
+    private List<CommentDto> comments = new ArrayList<>();
 }

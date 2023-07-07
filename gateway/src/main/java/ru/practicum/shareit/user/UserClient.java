@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -9,15 +8,15 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.user.dto.UserIncomeDto;
+import ru.practicum.shareit.user.dto.UserGatewayDto;
+import ru.practicum.shareit.user.dto.UserGatewayForUpdateDto;
 
 @Service
-@Slf4j
 public class UserClient extends BaseClient {
     private static final String API_PREFIX = "/users";
 
     @Autowired
-    public UserClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public UserClient(@Value("${server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
@@ -26,33 +25,24 @@ public class UserClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getAll() {
-        log.info("Обработка запроса на возврат всех пользователей");
+    public ResponseEntity<Object> addUser(UserGatewayDto user) {
+        return post("", user);
+    }
+
+    public ResponseEntity<Object> getUsers() {
         return get("");
     }
 
-    public ResponseEntity<Object> getById(long userId) {
-        log.info("Обработка запроса на возврат пользователя c id = {} ", userId);
+    public ResponseEntity<Object> updateUser(UserGatewayForUpdateDto userForUpdate, Long userId) {
+        return patch("/" + userId, userForUpdate);
+    }
+
+    public ResponseEntity<Object> getUser(Long userId) {
         return get("/" + userId);
     }
 
-    public ResponseEntity<Object> create(UserIncomeDto userDto) {
-        log.info("Обработка запроса создания пользователя c name = {} ", userDto.getName());
-        return post("", userDto);
-    }
-
-    public ResponseEntity<Object> update(UserIncomeDto userDto, long userId) {
-        log.info("Обработка запроса обновления пользователя c id = {} ", userId);
-        return patch("/" + userId, userDto);
-    }
-
-    public ResponseEntity<Object> deleteById(long userId) {
-        log.info("Обработка запроса на удаление пользователя c id = {} ", userId);
+    public ResponseEntity<Object> deleteUser(Long userId) {
         return delete("/" + userId);
     }
 
-    public ResponseEntity<Object> deleteAll() {
-        log.info("Обработка запроса на удаление всех пользователей");
-        return delete("");
-    }
 }

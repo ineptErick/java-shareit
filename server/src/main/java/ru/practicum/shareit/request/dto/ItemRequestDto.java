@@ -1,26 +1,20 @@
 package ru.practicum.shareit.request.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Getter;
+
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@Builder(toBuilder = true)
-@Getter
+@Data
+@RequiredArgsConstructor
 public class ItemRequestDto {
-    private final Long id;
-    private final String description;
-    private final LocalDateTime created;
-    private final ShortRequestorDto requestor;
-
-    @RequiredArgsConstructor
-    @Getter
-    public static class ShortRequestorDto {
-        @JsonProperty(value = "id")
-        private final long requestorId;
-        @JsonProperty(value = "name")
-        private final String requestorName;
-    }
+    private Long id;
+    private String description;
+    private Long requestorId;
+    private LocalDateTime created;
+    private List<Item> items = new ArrayList<>();
 }
