@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> addUser(
-            @RequestBody @Valid UserGatewayDto user) {
+                                    @RequestBody @Valid UserGatewayDto user) {
         log.info("Создание пользователя с именем: {} и почтой: {}.", user.getName(), hideEmail(user));
         return userClient.addUser(user);
     }
@@ -34,28 +34,28 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> updateUser(
-            @RequestBody @Valid UserGatewayForUpdateDto userDto,
-            @Valid @Positive(message = "ID пользователя должен быть > 0.")
-            @PathVariable
-            Long userId) {
+                                    @RequestBody @Valid UserGatewayForUpdateDto userDto,
+                                    @Valid @Positive(message = "ID пользователя должен быть > 0.")
+                                    @PathVariable
+                                    Long userId) {
         log.info("Обновление пользователя с userId={}.", userId);
         return userClient.updateUser(userDto, userId);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<Object> getUser(
-            @Valid @Positive(message = "ID пользователя должен быть > 0.")
-            @PathVariable
-            Long userId) {
+                                    @Valid @Positive(message = "ID пользователя должен быть > 0.")
+                                    @PathVariable
+                                    Long userId) {
         log.info("Запрос на получение пользователя с userId={}.", userId);
         return userClient.getUser(userId);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Object> deleteUser(
-            @Valid @Positive(message = "ID пользователя должен быть > 0.")
-            @PathVariable
-            Long userId) {
+                                    @Valid @Positive(message = "ID пользователя должен быть > 0.")
+                                    @PathVariable
+                                    Long userId) {
         log.info("Удаление пользователя с userId={}.", userId);
         return userClient.deleteUser(userId);
     }

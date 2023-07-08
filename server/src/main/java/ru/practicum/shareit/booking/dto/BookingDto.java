@@ -19,7 +19,7 @@ public class BookingDto {
 
 
     public BookingDto(Long bookingId, LocalDateTime start, LocalDateTime end, String status, Long bookerId,
-                      Long itemId, String itemName) {
+                       Long itemId, String itemName) {
         this.id = bookingId;
         this.start = start;
         this.end = end;

@@ -49,7 +49,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .map(ItemRequestMapper.INSTANT::toItemRequestDto)
                 .collect(Collectors.toList());
         for (ItemRequestDto request: requests) {
-            request.setItems(itemRepository.findAllByRequestId(request.getId()));
+                request.setItems(itemRepository.findAllByRequestId(request.getId()));
         }
         return requests;
     }

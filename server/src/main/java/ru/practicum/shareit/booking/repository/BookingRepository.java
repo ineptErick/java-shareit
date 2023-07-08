@@ -106,10 +106,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Slice<BookingDto> ownerFindAllWaitingOrRejected(Long userId, String status, Pageable pageable);
 
     @Query(value = "SELECT * " +
-            "FROM Bookings b " +
-            "WHERE b.item_id = ?1 " +
-            "AND b.start_date < ?2 " +
-            "ORDER BY b.end_date DESC LIMIT 1 ", nativeQuery = true)
+        "FROM Bookings b " +
+        "WHERE b.item_id = ?1 " +
+        "AND b.start_date < ?2 " +
+        "ORDER BY b.end_date DESC LIMIT 1 ", nativeQuery = true)
     Booking getLastBooking(Long itemId, LocalDateTime now);
 
     @Query(value = "SELECT * " +

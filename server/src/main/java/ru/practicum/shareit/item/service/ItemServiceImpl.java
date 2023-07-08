@@ -155,12 +155,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void setBookingDates(ItemDto itemDto) {
-        Booking lastBooking = bookingRepository.getLastBooking(itemDto.getId(), LocalDateTime.now());
-        if (lastBooking != null) {
-            itemDto.setLastBooking(new BookingInfoDto(lastBooking.getId(), lastBooking.getBookerId()));
-            itemDto.setLastBookingDate(lastBooking.getEnd());
-        }
-        Booking nextBooking = bookingRepository.getNextBooking(itemDto.getId(), LocalDateTime.now());
+            Booking lastBooking = bookingRepository.getLastBooking(itemDto.getId(), LocalDateTime.now());
+            if (lastBooking != null) {
+                itemDto.setLastBooking(new BookingInfoDto(lastBooking.getId(), lastBooking.getBookerId()));
+                itemDto.setLastBookingDate(lastBooking.getEnd());
+            }
+            Booking nextBooking = bookingRepository.getNextBooking(itemDto.getId(), LocalDateTime.now());
         if (nextBooking != null) {
             itemDto.setNextBooking(new BookingInfoDto(nextBooking.getId(), nextBooking.getBookerId()));
             itemDto.setNextBookingDate(nextBooking.getStart());

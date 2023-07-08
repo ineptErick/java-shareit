@@ -47,8 +47,8 @@ public class BookingServiceImpl implements BookingService {
         bookingValidation.bookingValidation(booking);
         bookingRepository.save(booking);
         return BookingMapper.INSTANT.toBookingDto(booking,
-                ItemMapper.INSTANT.toItemBookingDto(item),
-                UserMapper.INSTANT.toUserBookingDto(user));
+                                                  ItemMapper.INSTANT.toItemBookingDto(item),
+                                                  UserMapper.INSTANT.toUserBookingDto(user));
 
     }
 
