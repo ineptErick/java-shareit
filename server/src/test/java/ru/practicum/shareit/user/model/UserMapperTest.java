@@ -25,16 +25,16 @@ class UserMapperTest {
         );
     }
 
-   @Test
+    @Test
     void toUserBookingDto() {
-       User user = new User();
-       user.setId(0L);
-       user.setName("User1");
-       user.setEmail("user1@mail.ru");
+        User user = new User();
+        user.setId(0L);
+        user.setName("User1");
+        user.setEmail("user1@mail.ru");
 
-       UserBookingDto userBookingDto = UserMapper.INSTANT.toUserBookingDto(user);
+        UserBookingDto userBookingDto = UserMapper.INSTANT.toUserBookingDto(user);
 
-       assertEquals(userBookingDto.getId(), user.getId());
+        assertEquals(userBookingDto.getId(), user.getId());
     }
 
     @Test

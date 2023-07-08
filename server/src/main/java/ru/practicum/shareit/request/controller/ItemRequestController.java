@@ -34,8 +34,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDto> getAllRequests(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                                            @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer page,
-                                            @RequestParam(value = "size", defaultValue = "20") @Min(1) @Max(50) Integer size) {
+                                               @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer page,
+                                               @RequestParam(value = "size", defaultValue = "20") @Min(1) @Max(50) Integer size) {
         return requestService.findAll(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "created")));
     }
 

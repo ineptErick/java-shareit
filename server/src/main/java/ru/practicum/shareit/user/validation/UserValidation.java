@@ -20,7 +20,7 @@ public class UserValidation {
     @Qualifier("dbUserRepository")
     private UserRepository userRepository;
 
-    private Pattern emailPattern = Pattern.compile("^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@" +
+    private Pattern emailPattern = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" +
             "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
     private boolean validateEmail(final String hex) {

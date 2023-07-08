@@ -26,8 +26,8 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDto updateItem(@RequestHeader (value = "X-Sharer-User-Id") Long userId,
-                              @PathVariable Long bookingId,
-                              @RequestParam Boolean approved) {
+                                 @PathVariable Long bookingId,
+                                 @RequestParam Boolean approved) {
         return bookingService.acceptBooking(userId, bookingId, approved);
     }
 
@@ -38,17 +38,17 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllUsersBookings(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                                          @RequestParam(name = "state", defaultValue = "ALL") String state,
-                                          @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer page,
-                                          @RequestParam(value = "size", defaultValue = "20") @Min(1) @Max(50) Integer size) {
+                                                @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                                @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer page,
+                                                @RequestParam(value = "size", defaultValue = "20") @Min(1) @Max(50) Integer size) {
         return bookingService.getBookingByState(userId, state, PageRequest.of(page, size), false);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwnerBookings(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
-                                             @RequestParam(name = "state", defaultValue = "ALL") String state,
-                                             @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer page,
-                                             @RequestParam(value = "size", defaultValue = "20") @Min(1) @Max(50) Integer size) {
+                                                @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                                @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer page,
+                                                @RequestParam(value = "size", defaultValue = "20") @Min(1) @Max(50) Integer size) {
         return bookingService.getBookingByState(userId, state, PageRequest.of(page, size), true);
     }
 

@@ -65,13 +65,13 @@ class ItemControllerTest {
     void addItem() throws Exception {
         Mockito.when(itemService.saveItem(item1ByUser1, userId)).thenReturn(itemDto1ByUser1);
         String result = mockMvc.perform(MockMvcRequestBuilders.post("/items", item1ByUser1, userId)
-                .header("X-Sharer-User-Id", userId)
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(item1ByUser1)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(item1ByUser1)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         Assertions.assertEquals(objectMapper.writeValueAsString(itemDto1ByUser1), result);
     }
@@ -162,7 +162,7 @@ class ItemControllerTest {
     @Test
     void deleteItem() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/items/{itemId}", itemId)
-                .header("X-Sharer-User-Id", userId))
+                        .header("X-Sharer-User-Id", userId))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         Mockito.verify(itemService).deleteItem(itemId, userId);

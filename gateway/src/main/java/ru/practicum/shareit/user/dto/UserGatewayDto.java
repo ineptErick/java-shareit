@@ -17,4 +17,3 @@ public class UserGatewayDto {
     @NotBlank(message = "Почта не может быть пустой.")
     private String email;
 }
-

@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,10 +51,10 @@ class UserValidationTest {
         user.setName("User");
         user.setEmail("user@mail.ru");
 
-       Mockito.when(userRepository.findById(ArgumentMatchers.any()))
+        Mockito.when(userRepository.findById(ArgumentMatchers.any()))
                 .thenReturn(Optional.ofNullable(user));
 
-       userValidation.isPresent(user.getId());
+        userValidation.isPresent(user.getId());
 
         Mockito.verify(userRepository, Mockito.times(1)).getUserById(user.getId());
 

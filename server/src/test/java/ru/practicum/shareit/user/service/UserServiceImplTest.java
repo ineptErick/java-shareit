@@ -241,7 +241,7 @@ class UserServiceImplTest {
 
         Assertions.assertThrows(ModelConflictException.class,
                 () -> {
-            userService.updateUser(UserMapper.INSTANT.toUserDto(userToSave)); });
+                    userService.updateUser(UserMapper.INSTANT.toUserDto(userToSave)); });
 
         Mockito.verify(userRepository, Mockito.never()).save(userToSave);
     }

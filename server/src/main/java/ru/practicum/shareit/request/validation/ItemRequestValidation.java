@@ -18,7 +18,7 @@ public class ItemRequestValidation {
 
     public void requestValidation(ItemRequest itemRequest) {
         if ((itemRequest.getDescription() == null) ||
-        itemRequest.getDescription().isBlank()) {
+                itemRequest.getDescription().isBlank()) {
             throw new ModelValidationException("Описание не может быть пустым.");
         }
     }
